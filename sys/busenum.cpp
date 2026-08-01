@@ -184,9 +184,15 @@ EXTERN_C NTSTATUS Bus_PlugInDevice(
 		}
 	}
 
-	if (!NT_SUCCESS(description.Target->PdoPrepare(Device)))
+	status = description.Target->PdoPrepare(Device);
+	if (!NT_SUCCESS(status))
 	{
-		goto pluginEnd;
+		TraceError(
+			TRACE_BUSENUM,
+			"PdoPrepare failed with status %!STATUS!",
+			status);
+
+		goto pluginFailed;
 	}
 
 	if (plugIn->TargetType == DualShock4Wired)
@@ -207,12 +213,16 @@ EXTERN_C NTSTATUS Bus_PlugInDevice(
 			"WdfChildListAddOrUpdateChildDescriptionAsPresent failed with status %!STATUS!",
 			status);
 
+		// A failure here (other than STATUS_OBJECT_NAME_EXISTS, handled below)
+		// means Bus_EvtDeviceListCreatePdo/PdoCreateDevice was invoked and has
+		// already freed description.Target on its own failure paths -- do not
+		// free it again here, that would be a double free.
 		goto pluginEnd;
 	}
 
 	//
 	// The requested serial number is already in use
-	// 
+	//
 	if (status == STATUS_OBJECT_NAME_EXISTS)
 	{
 		status = STATUS_INVALID_PARAMETER;
@@ -222,8 +232,18 @@ EXTERN_C NTSTATUS Bus_PlugInDevice(
 			"The described PDO already exists (%!STATUS!)",
 			status);
 
-		goto pluginEnd;
+		goto pluginFailed;
 	}
+
+	goto pluginEnd;
+
+pluginFailed:
+
+	//
+	// PDO never got bound to a device object (or never will be), so its
+	// cleanup callback will never run to free it -- free it here instead.
+	//
+	delete description.Target;
 
 pluginEnd:
 
