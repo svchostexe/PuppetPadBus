@@ -566,6 +566,7 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::PdoPrepare(WDFDEVICE ParentDevice
 			TRACE_BUSPDO,
 			"WdfIoQueueCreate (PendingPlugInRequests) failed with status %!STATUS!",
 			status);
+		return status;
 	}
 
 	WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
