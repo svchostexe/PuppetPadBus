@@ -250,8 +250,16 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::PdoCreateDevice(WDFDEVICE ParentD
 		// Create and assign queue for user-land notification requests
 		WDF_IO_QUEUE_CONFIG_INIT(&notificationsQueueConfig, WdfIoQueueDispatchManual);
 
+		// Parent to the PDO (not the FDO) so WDF tears this queue down, and
+		// unregisters its EvtWdfIoPendingNotificationQueueState callback, when
+		// the PDO is destroyed. Previously this was parented to the FDO, which
+		// let the ready-notify callback outlive the C++ target object deleted
+		// in EvtDeviceContextCleanup -- on the next sleep/resume cycle WDF
+		// reactivates FDO-owned queues and invokes the callback with a
+		// dangling `this`, causing a WDF_VIOLATION bugcheck. See upstream
+		// https://github.com/nefarius/ViGEmBus/issues/160.
 		status = WdfIoQueueCreate(
-			ParentDevice,
+			this->_PdoDevice,
 			&notificationsQueueConfig,
 			WDF_NO_OBJECT_ATTRIBUTES,
 			&this->_PendingNotificationRequests
