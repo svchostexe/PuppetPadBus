@@ -1017,9 +1017,12 @@ NTSTATUS ViGEm::Bus::Targets::EmulationTargetDS4::UsbBulkOrInterruptTransfer(_UR
 	}
 
 	// Store relevant bytes of buffer in PDO context
-	RtlCopyBytes(&this->_OutputReport,
-		static_cast<PUCHAR>(pTransfer->TransferBuffer) + DS4_OUTPUT_BUFFER_OFFSET,
-		DS4_OUTPUT_BUFFER_LENGTH);
+	if (pTransfer->TransferBufferLength >= DS4_OUTPUT_BUFFER_OFFSET + DS4_OUTPUT_BUFFER_LENGTH)
+	{
+		RtlCopyBytes(&this->_OutputReport,
+			static_cast<PUCHAR>(pTransfer->TransferBuffer) + DS4_OUTPUT_BUFFER_OFFSET,
+			DS4_OUTPUT_BUFFER_LENGTH);
+	}
 
 
 	this->_AwaitOutputCache.Size = sizeof(DS4_AWAIT_OUTPUT);

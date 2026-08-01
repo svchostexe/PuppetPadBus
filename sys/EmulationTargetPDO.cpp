@@ -369,9 +369,20 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::PdoCreateDevice(WDFDEVICE ParentD
 		DMF_DmfDeviceInitFree(&dmfDeviceInit);
 	}
 
-	if (!NT_SUCCESS(status) && this->_PdoDevice != nullptr)
+	if (!NT_SUCCESS(status))
 	{
-		WdfObjectDelete(this->_PdoDevice);
+		if (this->_PdoDevice != nullptr)
+		{
+			// Triggers EvtDeviceContextCleanup synchronously, which deletes 'this'.
+			WdfObjectDelete(this->_PdoDevice);
+		}
+		else
+		{
+			// WdfDeviceCreate never succeeded, so the cleanup callback that
+			// would normally free this object will never run for it -- free
+			// it here instead so callers can rely on "failure => freed".
+			delete this;
+		}
 	}
 
 	TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_BUSPDO, "%!FUNC! Exit with status %!STATUS!", status);
@@ -398,10 +409,11 @@ VOID ViGEm::Bus::Core::EmulationTargetPDO::EvtDeviceContextCleanup(
 	// 
 	if (ctx->Target->_WaitDeviceReadyCompletionWorkerThreadHandle)
 	{
-		NTSTATUS status = KeWaitForSingleObject(
-			&ctx->Target->_WaitDeviceReadyCompletionWorkerThreadHandle,
-			Executive,
-			KernelMode,
+		// ZwWaitForSingleObject takes the HANDLE itself; KeWaitForSingleObject
+		// requires a pointer to a dispatcher object (e.g. from
+		// ObReferenceObjectByHandle), not the address of the HANDLE variable.
+		NTSTATUS status = ZwWaitForSingleObject(
+			ctx->Target->_WaitDeviceReadyCompletionWorkerThreadHandle,
 			FALSE,
 			nullptr
 		);
@@ -415,7 +427,7 @@ VOID ViGEm::Bus::Core::EmulationTargetPDO::EvtDeviceContextCleanup(
 		{
 			TraceEvents(TRACE_LEVEL_WARNING,
 				TRACE_BUSPDO,
-				"KeWaitForSingleObject failed with status %!STATUS!",
+				"ZwWaitForSingleObject failed with status %!STATUS!",
 				status
 			);
 		}
@@ -465,10 +477,11 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::EnqueueWaitDeviceReady(WDFREQUEST
 
 	if (this->_WaitDeviceReadyCompletionWorkerThreadHandle)
 	{
-		status = KeWaitForSingleObject(
-			&this->_WaitDeviceReadyCompletionWorkerThreadHandle,
-			Executive,
-			KernelMode,
+		// ZwWaitForSingleObject takes the HANDLE itself; KeWaitForSingleObject
+		// requires a pointer to a dispatcher object (e.g. from
+		// ObReferenceObjectByHandle), not the address of the HANDLE variable.
+		status = ZwWaitForSingleObject(
+			this->_WaitDeviceReadyCompletionWorkerThreadHandle,
 			FALSE,
 			nullptr
 		);
@@ -482,7 +495,7 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::EnqueueWaitDeviceReady(WDFREQUEST
 		{
 			TraceEvents(TRACE_LEVEL_WARNING,
 				TRACE_BUSPDO,
-				"KeWaitForSingleObject failed with status %!STATUS!",
+				"ZwWaitForSingleObject failed with status %!STATUS!",
 				status
 			);
 		}
