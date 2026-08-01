@@ -12,6 +12,14 @@ Users of this software are encouraged to [read the end-of-life statement](https:
 
 ---
 
+## About this fork
+
+This is an independent, community-maintained continuation of the archived upstream `nefarius/ViGEmBus`, kept alive because a large number of tools (input remapping, remote play, streaming, accessibility software) still depend on it and upstream stopped taking changes in November 2023 after a trademark dispute. This fork has no affiliation with Nefarius Software Solutions e.U.
+
+**Security note if you have an existing ViGEmBus installation:** the domain its built-in auto-updater checked (`vigem.org`) was transferred away from the original maintainer in December 2023. Update prompts from it can no longer be assumed to come from the original developer. Disable the auto-updater (or uninstall it) and source releases from a repository you trust instead.
+
+---
+
 ## About
 
 The `ViGEmBus` driver and `ViGEmClient` libraries represent the core of the Virtual Gamepad Emulation Framework (or `ViGEm` , for short). `ViGEm` aims for a 100% accurate [emulation](<https://en.wikipedia.org/wiki/Emulator>) of well-known gaming peripherals as pure software-based devices at kernel level. As it mimics "the real thing" games and other processes require no additional modification whatsoever to detect `ViGEm`-based devices (no Proxy-DLLs or API-Hooking) and simply work out of the box. While the (now obsolete) [Scarlett.Crush Productions Virtual Bus Driver](<https://github.com/nefarius/ScpVBus>) is the spiritual father of this project, `ViGEm` has been designed and written from the ground up utilizing Microsoft's [Kernel-Mode Driver Framework](https://en.wikipedia.org/wiki/Kernel-Mode_Driver_Framework).
