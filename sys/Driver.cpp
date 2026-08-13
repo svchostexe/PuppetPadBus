@@ -153,10 +153,13 @@ NTSTATUS Bus_EvtDeviceAdd(IN WDFDRIVER Driver, IN PWDFDEVICE_INIT DeviceInit)
 	)))
 	{
 		const bool deviceAlreadyExists = (0 != *pSymbolicNameList);
-		ExFreePool(pSymbolicNameList);
 
 		if (deviceAlreadyExists)
 		{
+			//
+			// Trace before freeing: the %ws argument is read by the tracing
+			// machinery, not copied by this call.
+			//
 			TraceError(
 				TRACE_DRIVER,
 				"Device with interface GUID {%!GUID!} already exists (%ws)",
@@ -164,8 +167,12 @@ NTSTATUS Bus_EvtDeviceAdd(IN WDFDRIVER Driver, IN PWDFDEVICE_INIT DeviceInit)
 				pSymbolicNameList
 			);
 
+			ExFreePool(pSymbolicNameList);
+
 			return STATUS_RESOURCE_IN_USE;
 		}
+
+		ExFreePool(pSymbolicNameList);
 	}
 	else
 	{
