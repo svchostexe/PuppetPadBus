@@ -1,4 +1,4 @@
-; ViGEmBus cab file for attestation submission
+; PuppetPadBus cab file for attestation submission
 .OPTION EXPLICIT
 .Set CabinetFileCountThreshold=0
 .Set FolderFileCountThreshold=0
@@ -9,10 +9,10 @@
 .Set CompressionType=MSZIP
 .Set Cabinet=on
 .Set Compress=on
-; x64
-.Set CabinetNameTemplate=ViGEmBus_x64.cab
-.Set DestinationDir=ViGEmBus_x64
+; x86
+.Set CabinetNameTemplate=PuppetPadBus_x86.cab
+.Set DestinationDir=PuppetPadBus_x86
 LICENSE
-bin\x64\ViGEmBus.pdb
-bin\x64\ViGEmBus\ViGEmBus.inf
-bin\x64\ViGEmBus\ViGEmBus.sys
+bin\x86\PuppetPadBus.pdb
+bin\x86\PuppetPadBus\PuppetPadBus.inf
+bin\x86\PuppetPadBus\PuppetPadBus.sys

@@ -36,19 +36,19 @@ Signature="$WINDOWS NT$"
 Class=System
 ClassGuid={4D36E97D-E325-11CE-BFC1-08002BE10318}
 Provider=%ManufacturerName%
-CatalogFile=ViGEmBus.cat
+CatalogFile=PuppetPadBus.cat
 DriverVer= ;
 PnpLockdown=1
 
 [DestinationDirs]
 DefaultDestDir = 12
-ViGEmBus_Device_CoInstaller_CopyFiles = 11
+PuppetPadBus_Device_CoInstaller_CopyFiles = 11
 
 [SourceDisksNames]
 1 = %DiskName%,,,
 
 [SourceDisksFiles]
-ViGEmBus.sys = 1,,
+PuppetPadBus.sys = 1,,
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll = 1
 
 ;*****************************************
@@ -59,54 +59,54 @@ WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll = 1
 %ManufacturerName%=Standard,NTamd64,NTx86,NTARM64
 
 [Standard.NTamd64]
-%ViGEmBus.DeviceDesc%=ViGEmBus_Device, Nefarius\ViGEmBus\Gen1
+%PuppetPadBus.DeviceDesc%=PuppetPadBus_Device, PuppetPad\PuppetPadBus\Gen1
 
 [Standard.NTx86]
-%ViGEmBus.DeviceDesc%=ViGEmBus_Device, Nefarius\ViGEmBus\Gen1
+%PuppetPadBus.DeviceDesc%=PuppetPadBus_Device, PuppetPad\PuppetPadBus\Gen1
 
 [Standard.NTARM64]
-%ViGEmBus.DeviceDesc%=ViGEmBus_Device, Nefarius\ViGEmBus\Gen1
+%PuppetPadBus.DeviceDesc%=PuppetPadBus_Device, PuppetPad\PuppetPadBus\Gen1
 
-[ViGEmBus_Device.NT]
+[PuppetPadBus_Device.NT]
 CopyFiles=Drivers_Dir
 
 [Drivers_Dir]
-ViGEmBus.sys
+PuppetPadBus.sys
 
 ;-------------- Service installation
-[ViGEmBus_Device.NT.Services]
-AddService = ViGEmBus,%SPSVCINST_ASSOCSERVICE%, ViGEmBus_Service_Inst
+[PuppetPadBus_Device.NT.Services]
+AddService = PuppetPadBus,%SPSVCINST_ASSOCSERVICE%, PuppetPadBus_Service_Inst
 
-; -------------- ViGEmBus driver install sections
-[ViGEmBus_Service_Inst]
-DisplayName    = %ViGEmBus.SVCDESC%
+; -------------- PuppetPadBus driver install sections
+[PuppetPadBus_Service_Inst]
+DisplayName    = %PuppetPadBus.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 1               ; SERVICE_SYSTEM_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\ViGEmBus.sys
+ServiceBinary  = %12%\PuppetPadBus.sys
 
 ;
-;--- ViGEmBus_Device Coinstaller installation ------
+;--- PuppetPadBus_Device Coinstaller installation ------
 ;
 
-[ViGEmBus_Device.NT.CoInstallers]
-AddReg=ViGEmBus_Device_CoInstaller_AddReg
-CopyFiles=ViGEmBus_Device_CoInstaller_CopyFiles
+[PuppetPadBus_Device.NT.CoInstallers]
+AddReg=PuppetPadBus_Device_CoInstaller_AddReg
+CopyFiles=PuppetPadBus_Device_CoInstaller_CopyFiles
 
-[ViGEmBus_Device_CoInstaller_AddReg]
+[PuppetPadBus_Device_CoInstaller_AddReg]
 HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
 
-[ViGEmBus_Device_CoInstaller_CopyFiles]
+[PuppetPadBus_Device_CoInstaller_CopyFiles]
 WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
 
-[ViGEmBus_Device.NT.Wdf]
-KmdfService =  ViGEmBus, ViGEmBus_wdfsect
-[ViGEmBus_wdfsect]
+[PuppetPadBus_Device.NT.Wdf]
+KmdfService =  PuppetPadBus, PuppetPadBus_wdfsect
+[PuppetPadBus_wdfsect]
 KmdfLibraryVersion = $KMDFVERSION$
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
-ManufacturerName="Nefarius Software Solutions e.U."
-DiskName = "Nefarius ViGEmBus Installation Disk"
-ViGEmBus.DeviceDesc = "Nefarius Virtual Gamepad Emulation Bus"
-ViGEmBus.SVCDESC = "Nefarius Virtual Gamepad Emulation Service"
+ManufacturerName="PuppetPad Project"
+DiskName = "PuppetPad Bus Installation Disk"
+PuppetPadBus.DeviceDesc = "PuppetPad Virtual Gamepad Emulation Bus"
+PuppetPadBus.SVCDESC = "PuppetPad Virtual Gamepad Emulation Service"

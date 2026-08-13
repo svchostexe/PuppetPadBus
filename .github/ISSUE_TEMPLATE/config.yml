@@ -1,11 +1,8 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
-  - name: 💬 Community support
-    url: https://docs.nefarius.at/Community-Support/
-    about: Use these resources for support.
-  - name: 📖 Documentation
-    url: https://docs.nefarius.at/projects/
-    about: Extended documentation about the projects.
-  - name: ❓ Other issue?
-    url: https://discord.nefarius.at/
-    about: See you on Discord.
+  - name: 🔒 Security issue
+    url: https://github.com/svchostexe/PuppetPadBus/blob/master/SECURITY.md
+    about: Do not open a public issue for security problems. See SECURITY.md.
+  - name: 📖 Upstream documentation
+    url: https://docs.nefarius.at/projects/ViGEm/
+    about: Reference docs for the original ViGEmBus this project forked from. That project is retired and its maintainers do not support PuppetPad.

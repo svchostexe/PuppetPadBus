@@ -25,7 +25,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="ViGEmBus.inf">
+    <Inf Include="PuppetPadBus.inf">
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>
@@ -82,7 +82,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ViGEmBus.rc">
+    <ResourceCompile Include="PuppetPadBus.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

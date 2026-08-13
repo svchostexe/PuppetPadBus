@@ -1,30 +1,28 @@
 ---
 name: Setup issues
-about: Use this if you have problems with the setup
+about: Use this if you have problems installing the driver
 
 ---
 
-## README first
+## Read first
 
-Before you report issues with the setup, make sure to check the following things **first**:
+Before reporting an installation problem, check these:
 
-- Are you on anything older than Windows **10**? Windows XP/Vista/7/8/8.1 **are not supported** so don't report this as an issue, it is intentional.
-- [Have you chosen the right setup for your CPU architecture?](https://vigem.org/research/How-to-check-architecture/)
-  - You **can not mix these**, make sure to download and run the correct setup.
-  - **ARM/ARM64** is **not supported**. See above link to check for yourself.
+- **Are you on Windows 10 or 11?** Anything older is not supported. That is intentional, please do not report it.
+- **Did you build for the right architecture?** x86, x64 and ARM64 builds are not interchangeable.
+- **Is the original ViGEmBus still installed?** PuppetPadBus and ViGEmBus cannot run at the same time — both claim the same device interface, and whichever loads second refuses to start. Uninstall ViGEmBus first.
+- **Is the driver signed?** This project publishes source, not signed binaries. A driver you built yourself will not load on a normal Windows install unless you enable test signing (`bcdedit /set testsigning on`, then reboot). Understand what that does to your machine's security posture before you turn it on.
 
-## I verified all that and am still stuck
+## Still stuck
 
-Please provide the following **log files** and attach them to the issue. Failing to do so will result in the issue being closed without any further comment.
+Attach these log files. Issues without them will be closed.
 
 ### Setup log
 
-Run the setup from the command line (either old-school `cmd` or PowerShell) with the following additional arguments: `/L*V .\install.log`
+Run the setup from `cmd` or PowerShell with `/L*V .\install.log` appended. That writes `install.log` next to the setup. Attach it after the install fails.
 
-This will generate the log file `install.log` in the same directory the setup resides in. Attach it once the setup is "done" failing.
+### Windows device install log
 
-Last but not least look for `C:\Windows\INF\setupapi.dev.log` and attach it as well.
+Attach `C:\Windows\INF\setupapi.dev.log` as well.
 
-Optionally compress both files down if it gives you troubles uploading.
-
-Your compliance is appreciated! 😘
+Compress both if upload gives you trouble.
