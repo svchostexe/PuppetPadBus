@@ -269,8 +269,23 @@ NTSTATUS ViGEm::Bus::Targets::EmulationTargetDS4::PdoInitContext()
 			break;
 		}
 
-		DECLARE_UNICODE_STRING_SIZE(serialPath, 4);
-		RtlUnicodeStringPrintf(&serialPath, L"%04d", this->_SerialNo);
+		//
+		// Sized for the widest ULONG (10 digits) plus the terminator that
+		// RtlUnicodeStringPrintf reserves out of MaximumLength. The previous
+		// size of 4 left room for only three digits and a NUL, so every
+		// serial was silently truncated and whole ranges of them collapsed
+		// onto a single subkey.
+		//
+		DECLARE_UNICODE_STRING_SIZE(serialPath, 16);
+
+		if (!NT_SUCCESS(status = RtlUnicodeStringPrintf(&serialPath, L"%04lu", this->_SerialNo)))
+		{
+			TraceError(
+				TRACE_DS4,
+				"RtlUnicodeStringPrintf failed with status %!STATUS!",
+				status);
+			break;
+		}
 
 		if (!NT_SUCCESS(status = WdfRegistryCreateKey(
 			keyDS,
