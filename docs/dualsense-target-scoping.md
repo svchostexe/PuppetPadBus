@@ -6,10 +6,10 @@ adding a Sony DualSense target to this fork is worth doing, and what it would co
 ## Short version
 
 The driver-side work is well-bounded and follows a path the DualShock 4 target
-already paved. The blocker is not the driver: it is that **every consumer reaches
-this bus through ViGEmClient**, which lives here as a git submodule pointing at the
-archived `ViGEm/ViGEmClient`. A DS5 target is useless until that library is forked
-and can be shipped. That decision should come first.
+already paved. The prerequisite used to be the blocker: **every consumer reaches
+this bus through ViGEmClient**, and a DS5 target is useless until that library can
+carry new API. That is now resolved — `sdk` points at `svchostexe/ViGEmClient`, a
+fork we control, so client-side changes can actually land.
 
 The second-biggest cost is not code either — it is the DualSense's **output**
 report, which carries adaptive-trigger effect parameters. That is genuinely new
@@ -28,12 +28,11 @@ subclass; nothing in the base class needs to change.
 
 ## Work items
 
-### 1. Fork ViGEmClient — prerequisite
+### 1. Extend ViGEmClient — done as a prerequisite, work still to do
 
-`.gitmodules` points `sdk` at `https://github.com/ViGEm/ViGEmClient.git`, currently
-at `cb8c9f4` (`v1.17.188.0-27-gcb8c9f4`). It is archived upstream, so new API
-cannot land there. Needs a fork on the same Gitea host as this repo, with
-`.gitmodules` repointed.
+`.gitmodules` points `sdk` at `https://github.com/svchostexe/ViGEmClient.git`, a
+fork of the archived upstream, pinned at `cb8c9f4` (`v1.17.188.0-27-gcb8c9f4`).
+New API can land there now. Nothing has been added yet.
 
 New public API, mirroring the DS4 entry points:
 
@@ -129,13 +128,12 @@ trigger effects. Budget for that, and note the driver must be test-signed to loa
 
 ## Recommendation
 
-Sequence it as: fork ViGEmClient → shared struct and IOCTL definitions → PDO class
-with input reports only → output/rumble → adaptive triggers via passthrough. Each
-stage is independently testable and the first two are prerequisites for anything
-else.
+Sequence it as: shared struct and IOCTL definitions → PDO class with input reports
+only → output/rumble → adaptive triggers via passthrough. Each stage is
+independently testable, and the first is a prerequisite for anything else.
 
-If forking ViGEmClient is not on the table, stop here — a driver-side DS5 target
-with no client library is unreachable by any consumer.
+The ViGEmClient fork that used to gate all of this now exists, so the remaining
+question is appetite rather than feasibility.
 
 ## Related
 
