@@ -433,12 +433,7 @@ VOID ViGEm::Bus::Core::EmulationTargetPDO::EvtDeviceContextCleanup(
 			nullptr
 		);
 
-		if (NT_SUCCESS(status))
-		{
-			ZwClose(ctx->Target->_WaitDeviceReadyCompletionWorkerThreadHandle);
-			ctx->Target->_WaitDeviceReadyCompletionWorkerThreadHandle = nullptr;
-		}
-		else
+		if (!NT_SUCCESS(status))
 		{
 			TraceEvents(TRACE_LEVEL_WARNING,
 				TRACE_BUSPDO,
@@ -446,6 +441,13 @@ VOID ViGEm::Bus::Core::EmulationTargetPDO::EvtDeviceContextCleanup(
 				status
 			);
 		}
+
+		//
+		// Close unconditionally: this object owns the handle, so skipping the
+		// close on a failed wait just leaked it until driver unload.
+		//
+		ZwClose(ctx->Target->_WaitDeviceReadyCompletionWorkerThreadHandle);
+		ctx->Target->_WaitDeviceReadyCompletionWorkerThreadHandle = nullptr;
 	}
 
 	//
@@ -501,12 +503,7 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::EnqueueWaitDeviceReady(WDFREQUEST
 			nullptr
 		);
 
-		if (NT_SUCCESS(status))
-		{
-			ZwClose(this->_WaitDeviceReadyCompletionWorkerThreadHandle);
-			this->_WaitDeviceReadyCompletionWorkerThreadHandle = nullptr;
-		}
-		else
+		if (!NT_SUCCESS(status))
 		{
 			TraceEvents(TRACE_LEVEL_WARNING,
 				TRACE_BUSPDO,
@@ -514,6 +511,13 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::EnqueueWaitDeviceReady(WDFREQUEST
 				status
 			);
 		}
+
+		//
+		// Close unconditionally: this object owns the handle, so skipping the
+		// close on a failed wait just leaked it until driver unload.
+		//
+		ZwClose(this->_WaitDeviceReadyCompletionWorkerThreadHandle);
+		this->_WaitDeviceReadyCompletionWorkerThreadHandle = nullptr;
 	}
 
 	status = WdfRequestForwardToIoQueue(Request, this->_WaitDeviceReadyRequests);
@@ -754,8 +758,15 @@ VOID ViGEm::Bus::Core::EmulationTargetPDO::WaitDeviceReadyCompletionWorkerRoutin
 		}
 	} while (FALSE);
 
-	ZwClose(ctx->_WaitDeviceReadyCompletionWorkerThreadHandle);
-	ctx->_WaitDeviceReadyCompletionWorkerThreadHandle = nullptr;
+	//
+	// Deliberately does NOT close _WaitDeviceReadyCompletionWorkerThreadHandle.
+	// That handle belongs to whoever called PsCreateSystemThread, and both
+	// EnqueueWaitDeviceReady and EvtDeviceContextCleanup wait on it to learn
+	// that this routine has finished. Closing it here raced with those
+	// waiters: their wait would fail instantly with STATUS_INVALID_HANDLE
+	// rather than block, letting EvtDeviceContextCleanup delete the target
+	// object while this routine was still dereferencing it.
+	//
 	KeClearEvent(&ctx->_PdoBootNotificationEvent);
 	(void)PsTerminateSystemThread(0);
 }
