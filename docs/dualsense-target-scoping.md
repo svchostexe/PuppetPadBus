@@ -91,7 +91,7 @@ Subclass `Core::EmulationTargetPDO` and implement the pure virtuals declared in
   `Bus_Ds4RequestNotificationHandler`.
 - `sys/Driver.cpp:62-74` — three rows in `ViGEmBus_IoctlSpecification[]`. DMF
   enforces the declared minimum buffer sizes, so get them right here.
-- `sys/ViGEmBus.vcxproj` + `.filters` — add the new sources.
+- `sys/PuppetPadBus.vcxproj` + `.filters` — add the new sources.
 - `Bus_PlugInDevice` also calls `SetOutputReportNotifyModule` for DS4 only
   (`busenum.cpp:198-201`); DS5 needs the equivalent if it supports await-output.
 

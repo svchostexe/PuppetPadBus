@@ -1,127 +1,108 @@
-# ViGEm Bus Driver
+# PuppetPad Bus Driver
 
 Windows kernel-mode driver emulating well-known USB game controllers.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/rv74ufluwib52dq2?svg=true)](https://ci.appveyor.com/project/nefarius/vigembus) [![GitHub All Releases](https://img.shields.io/github/downloads/ViGEm/ViGEmBus/total)](https://somsubhra.github.io/github-release-stats/?username=nefarius&repository=ViGEmBus) [![Discord](https://img.shields.io/discord/346756263763378176.svg)](https://discord.nefarius.at) [![Website](https://img.shields.io/website-up-down-green-red/https/vigem.org.svg?label=docs.nefarius.at)](https://docs.nefarius.at/) [![GitHub followers](https://img.shields.io/github/followers/nefarius.svg?style=social&label=Follow)](https://github.com/nefarius) [![Mastodon Follow](https://img.shields.io/mastodon/follow/109321120351128938?domain=https%3A%2F%2Ffosstodon.org%2F&style=social)](https://fosstodon.org/@Nefarius)
+**A community-maintained fork of [ViGEmBus](https://github.com/nefarius/ViGEmBus), which was retired in November 2023.**
 
 ---
 
-## 🧟 THIS PROJECT HAS BEEN RETIRED 🧟
+## What this is
 
-Users of this software are encouraged to [read the end-of-life statement](https://docs.nefarius.at/projects/ViGEm/End-of-Life/). So long, cheers 🖖
+`PuppetPadBus` is an independent continuation of the archived `nefarius/ViGEmBus` kernel driver. It exists because a large number of tools — input remappers, remote play and game streaming clients, accessibility software — still depend on that driver, and it stopped receiving fixes when upstream shut down.
 
----
+This fork is **not affiliated with, endorsed by, or supported by** Nefarius Software Solutions e.U., ViGEM GmbH, or any contributor to the original project. Please do not take support requests for this fork to them.
 
-## About this fork
+The name was changed deliberately. Upstream retired after a registered trademark conflict, and this project does not use the original mark in its name, branding, package identity or driver strings. References to "ViGEmBus" here are factual, describing what this software was forked from.
 
-This is an independent, community-maintained continuation of the archived upstream `nefarius/ViGEmBus`, kept alive because a large number of tools (input remapping, remote play, streaming, accessibility software) still depend on it and upstream stopped taking changes in November 2023 after a trademark dispute. This fork has no affiliation with Nefarius Software Solutions e.U.
+### What it keeps
 
-**Security note if you have an existing ViGEmBus installation:** the domain its built-in auto-updater checked (`vigem.org`) was transferred away from the original maintainer in December 2023. Update prompts from it can no longer be assumed to come from the original developer. Disable the auto-updater (or uninstall it) and source releases from a repository you trust instead.
+The device interface GUID and the IOCTL interface are **unchanged**, so existing software built against ViGEmClient works against this driver without modification. That compatibility is the entire point of the fork.
 
-Builds from this fork do not carry that updater. The bundled update component, the daily `ViGEmBus_Updater` scheduled task it installed, and the `updates.vigem.org` endpoint it polled have all been removed from the installer project, so nothing in a fork build contacts the network on its own. Updating is a deliberate, manual step.
+### What it does not do
 
----
+- **No signed binaries.** This repository publishes source only. See [Installation](#installation).
+- **No new emulated devices yet.** Xbox 360 and DualShock 4, same as upstream. A DualSense target has been [scoped](docs/dualsense-target-scoping.md) but not started.
+- **No auto-updater.** See [Security](#security).
 
-## About
+## ⚠️ It cannot coexist with ViGEmBus
 
-The `ViGEmBus` driver and `ViGEmClient` libraries represent the core of the Virtual Gamepad Emulation Framework (or `ViGEm` , for short). `ViGEm` aims for a 100% accurate [emulation](<https://en.wikipedia.org/wiki/Emulator>) of well-known gaming peripherals as pure software-based devices at kernel level. As it mimics "the real thing" games and other processes require no additional modification whatsoever to detect `ViGEm`-based devices (no Proxy-DLLs or API-Hooking) and simply work out of the box. While the (now obsolete) [Scarlett.Crush Productions Virtual Bus Driver](<https://github.com/nefarius/ScpVBus>) is the spiritual father of this project, `ViGEm` has been designed and written from the ground up utilizing Microsoft's [Kernel-Mode Driver Framework](https://en.wikipedia.org/wiki/Kernel-Mode_Driver_Framework).
+Both drivers expose the same device interface GUID, and the bus refuses to start if another one is already present. **Uninstall ViGEmBus before installing this.** Running both is not a supported configuration and will simply result in one of them failing to load.
 
-### Emulated devices
-
-Emulation of the following USB Gamepads is supported:
+## Emulated devices
 
 - [Microsoft Xbox 360 Controller](https://en.wikipedia.org/wiki/Xbox_360_controller)
 - [Sony DualShock 4 Controller](https://en.wikipedia.org/wiki/DualShock#DualShock_4)
 
-## Use cases
+## Supported systems
 
-A few examples of the most common use cases for `ViGEm` are:
+Windows 10 and 11, on x86, x64 and ARM64. Windows Server is untested and unsupported. Anything older than Windows 10 is not supported.
 
-- You have an unsupported input device you'd like to use within games without modifying said game.
-- You want the freedom to use a different controller of your choice in [PS4 Remote Play](<https://remoteplay.dl.playstation.net/remoteplay/>).
-- You encountered a game not compatible with [x360ce](<https://www.x360ce.com/>) (prior to version 4.x).
-- You want to extend the reach of your input device (like send traffic to a different machine over a network).
-- You want to test/benchmark your game and need a replay mechanism for your user inputs.
-- You want to work around player slot assignment order issues in `XInput`.
+## Installation
 
-## Supported Systems
+**There are no pre-built signed releases.** You build it yourself.
 
-🛑 **Windows Server** might work but is **not supported** 🛑
+This matters more than it sounds. Windows will not load an unsigned kernel-mode driver on a normal x64 install. To run a self-built driver you must enable test signing:
 
-Bug reports/support requests regarding running on a Server OS will be discarded.
+```
+bcdedit /set testsigning on
+```
 
-### Version 1.16 and below
+and reboot. That disables a meaningful security control on your machine — it permits *any* test-signed driver to load, not just this one. Understand that trade-off before you do it. If you are not comfortable with it, this driver is not currently something you should install.
 
-The driver is built for Windows 7/8.1/10 (x86 and amd64).
+Production signing requires an EV code-signing certificate and Microsoft attestation signing through Partner Center. If that changes for this project, it will be announced in the releases.
 
-### Version 1.17 and above
+## Security
 
-The driver is built for Windows 10/11 only (x86, amd64 and ARM64).
+This fork ships **no auto-updater**. The original bundled an Advanced Installer update component that polled `updates.vigem.org` on a daily scheduled task and could download and launch an installer. That domain was transferred away from the original maintainer in December 2023, so prompts from it can no longer be attributed to the original developer. The update component, its scheduled task and its endpoint have all been removed from the installer project here. Nothing in a PuppetPad build contacts the network on its own.
+
+**If you have an existing ViGEmBus installation**, that updater may still be present and active on your machine. Disabling or removing it is worthwhile regardless of whether you switch to this fork.
+
+To report a security problem in this driver, see [SECURITY.md](SECURITY.md). Please do not open a public issue.
 
 ## License
 
-The ViGEm Bus Driver is licensed under the **BSD-3-Clause**, see [LICENSE](./LICENSE.md) for more information.
+BSD-3-Clause, inherited from the original project. See [LICENSE](./LICENSE).
+
+Copyright on the original work remains with Nefarius Software Solutions e.U. and contributors; those notices are retained throughout the source, as the license requires. See [NOTICE](./NOTICE) for the fork's provenance.
 
 ## How to build
 
 ### Prerequisites
 
-- [Step 1: Install Visual Studio 2019](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-1-install-visual-studio)
-- [Step 2: Install WDK for Windows 10, version 2004](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-2-install-the-wdk)
-- [Step 3: Clone the Driver Module Framework (DMF)](https://github.com/microsoft/DMF) into the same parent directory.
-  - Build the `DmfK` project with Release and Debug configurations for all architectures (x64 and Win32).
+- [Visual Studio 2019](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-1-install-visual-studio)
+- [WDK for Windows 10, version 2004](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-2-install-the-wdk) (`10.0.19041.0`)
+- [Driver Module Framework (DMF)](https://github.com/microsoft/DMF), cloned separately, with `patches/dmf.diff` applied
 
-You can build directly within Visual Studio.
+### Building
 
-Do bear in mind that you'll need to **sign** the driver to use it without [test mode](https://docs.microsoft.com/en-us/windows-hardware/drivers/install/the-testsigning-boot-configuration-option#enable-or-disable-use-of-test-signed-code).
+Build the **solution**, not the project — `sys/PuppetPadBus.vcxproj` resolves includes through `$(SolutionDir)` and fails to find them when built standalone.
 
-## Contribute
+```
+set DmfRootPath=<path to your DMF clone>
+msbuild PuppetPadBus.sln /p:Configuration=Release /p:Platform=x64
+```
 
-### Bugs & Features
+`Platform` accepts `x64`, `x86` or `ARM64`. Only the `Release` configuration is supported — DMF is built for Release only, so a Debug build fails at link. DMF must be built once per architecture before the driver will link against it, and note that DMF itself uses `Win32` where this solution uses `x86`.
 
-Found a bug and want it fixed? Open a detailed issue on the [GitHub issue tracker](../../issues)!
+Output lands in `bin\<arch>\`.
 
-Have an idea for a new feature? Let's have a chat about your request on [Discord](https://discord.nefarius.at).
+## Contributing
 
-### Questions & Support
+Bug reports and pull requests are welcome on the [issue tracker](../../issues). Security issues go through [SECURITY.md](SECURITY.md) instead.
 
-Please respect that the GitHub issue tracker isn't a helpdesk. We offer a [range of support resources](https://docs.nefarius.at/Community-Support/) you're welcome to check out!
+Please respect that the issue tracker is not a helpdesk, and that this project has no relationship with upstream's support channels.
 
-## Installation
+## Compatible software
 
-Pre-built production-signed binaries **for Windows 10/11** are provided by `Nefarius Software Solutions e.U.` [as an all-in-one setup](../../releases/latest).
+Software written against the ViGEmBus client API works with this driver unmodified. A non-exhaustive list of projects known to build on that API — **listed for compatibility reference only; none of these endorse or are affiliated with this fork**:
 
-## Sponsors
-
-Sponsors listed here have helped the project flourish by either financial support or by gifting licenses:
-
-- [3dRudder](https://www.3drudder.com/)
-- [Parsec](https://parsec.app/)
-- [JetBrains](https://www.jetbrains.com/resharper/)
-- [Advanced Installer](https://www.advancedinstaller.com/)
-- [ICAROS](https://www.icaros.com/)
-
-## Known users of ViGEm
-
-A brief listing of projects/companies/vendors known to build upon the powers of ViGEm.
-
-This list is non-exhaustive, if you'd like to see your project included, contact us!
-
-- [3dRudder](https://www.3drudder.com/)
-- [Parsec](https://parsec.app/)
+- [DS4Windows](https://ryochan7.github.io/ds4windows-site/)
+- [Sunshine](https://github.com/LizardByte/Sunshine)
 - [GloSC](https://github.com/Alia5/GloSC)
 - [UCR](https://github.com/Snoothy/UCR)
-- [InputMapper](https://inputmapper.com/)
-- [Oculus VR, LLC.](https://www.oculus.com/)
-- [WiimoteHook](https://forum.cemu.info/showthread.php/140-WiimoteHook-Nintendo-Wii-Remote-with-Motion-Rumble-and-Nunchuk-support)
-- [XJoy](https://github.com/sam0x17/XJoy)
-- [HP](https://www8.hp.com/us/en/gaming/omen.html)
-- [DS4Windows](https://ryochan7.github.io/ds4windows-site/)
 - [XOutput](https://github.com/csutorasa/XOutput)
-- [RdpGamepad](https://github.com/microsoft/RdpGamepad)
-- [Touchmote](https://github.com/Ryochan7/Touchmote/tree/ryochan7)
-- [Mi-ViGEm](https://github.com/grayver/mi-vigem)
 - [BetterJoy](https://github.com/Davidobot/BetterJoy)
-- [Regame](https://github.com/ksyun-kenc/liuguang)
-- [NetInput](https://github.com/usertoroot/NetInput)
+- [Touchmote](https://github.com/Ryochan7/Touchmote/tree/ryochan7)
+- [XJoy](https://github.com/sam0x17/XJoy)
+- [RdpGamepad](https://github.com/microsoft/RdpGamepad)
 - [NetJoy](https://github.com/Qcent/NetJoy/)

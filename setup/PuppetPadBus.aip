@@ -10,13 +10,12 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="ARPNOREPAIR" Value="1" MultiBuildValue="DefaultBuild:1"/>
-    <ROW Property="ARPPRODUCTICON" Value="ViGEm.exe" Type="8"/>
-    <ROW Property="AiLicenseAgreementLink" Value="https://github.com/ViGEm/ViGEmBus/blob/master/LICENSE" Type="4"/>
+    <ROW Property="ARPPRODUCTICON" Value="PuppetPad.exe" Type="8"/>
     <ROW Property="IAgree" Value="No" Type="4"/>
-    <ROW Property="Manufacturer" Value="Nefarius Software Solutions e.U."/>
+    <ROW Property="Manufacturer" Value="PuppetPad Project"/>
     <ROW Property="ProductCode" Value="2057:{9C581C76-2D68-40F8-AA6F-94D3C5215C05} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
-    <ROW Property="ProductName" Value="ViGEm Bus Driver"/>
+    <ROW Property="ProductName" Value="PuppetPad Bus Driver"/>
     <ROW Property="ProductVersion" Value="1.21.442"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR;UPGRADE_1"/>
     <ROW Property="UpgradeCode" Value="{67175F6C-AA18-43A7-AE60-2FC3FD10BF79}"/>
@@ -45,17 +44,17 @@
     <ROW Component="APPDIR" ComponentId="{947691BF-6B7F-4A14-9027-3E1ECF87784A}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="LICENSE" ComponentId="{60476948-DBD4-4515-B1B1-6EECCB99AE99}" Directory_="ARM64_Dir" Attributes="0" KeyPath="LICENSE_2" Type="0"/>
     <ROW Component="ProductInformation" ComponentId="{E2F0A6FF-AB27-4BBA-AF65-9D70B244A328}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="ViGEmBus.inf" ComponentId="{E79736E3-4F2D-4E11-9BED-7A17521333E7}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="ViGEmBus.inf_2"/>
-    <ROW Component="ViGEmBus.pdb" ComponentId="{965D6CDE-0142-4A0F-90B8-12D3322333BF}" Directory_="APPDIR" Attributes="0" KeyPath="ViGEmBus.pdb" Type="4"/>
-    <ROW Component="ViGEmBus.pdb_2" ComponentId="{58BB969A-1902-4F8A-AFCF-F4950E272E7C}" Directory_="ARM64_Dir" Attributes="0" KeyPath="ViGEmBus.pdb_2" Type="4"/>
-    <ROW Component="ViGEmBus.pdb_3" ComponentId="{EFCC2160-8010-43A3-B5A8-7C09A83C208B}" Directory_="AI_Bin32_Dir" Attributes="0" KeyPath="ViGEmBus.pdb_3" Type="4"/>
-    <ROW Component="ViGEmBus.sys" ComponentId="{DA974243-DAFB-49CF-8693-FF51C234CBD5}" Directory_="APPDIR" Attributes="256" Condition="VersionNT64 AND NOT AiArm64" KeyPath="ViGEmBus.sys" Type="0"/>
+    <ROW Component="PuppetPadBus.inf" ComponentId="{E79736E3-4F2D-4E11-9BED-7A17521333E7}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="PuppetPadBus.inf_2"/>
+    <ROW Component="PuppetPadBus.pdb" ComponentId="{965D6CDE-0142-4A0F-90B8-12D3322333BF}" Directory_="APPDIR" Attributes="0" KeyPath="PuppetPadBus.pdb" Type="4"/>
+    <ROW Component="PuppetPadBus.pdb_2" ComponentId="{58BB969A-1902-4F8A-AFCF-F4950E272E7C}" Directory_="ARM64_Dir" Attributes="0" KeyPath="PuppetPadBus.pdb_2" Type="4"/>
+    <ROW Component="PuppetPadBus.pdb_3" ComponentId="{EFCC2160-8010-43A3-B5A8-7C09A83C208B}" Directory_="AI_Bin32_Dir" Attributes="0" KeyPath="PuppetPadBus.pdb_3" Type="4"/>
+    <ROW Component="PuppetPadBus.sys" ComponentId="{DA974243-DAFB-49CF-8693-FF51C234CBD5}" Directory_="APPDIR" Attributes="256" Condition="VersionNT64 AND NOT AiArm64" KeyPath="PuppetPadBus.sys" Type="0"/>
     <ROW Component="nefconw.exe" ComponentId="{AEADABD6-0FA7-4BF5-A3F5-1043F5D911F9}" Directory_="APPDIR" Attributes="256" Condition="VersionNT64 AND NOT AiArm64" KeyPath="nefconw.exe"/>
     <ROW Component="nefconw.exe_1" ComponentId="{E0BCC5D1-4762-490A-AD7E-9A36C8DF724C}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64 AND NOT AiArm64" KeyPath="nefconw.exe_1"/>
     <ROW Component="nefconw.exe_2" ComponentId="{B25A0000-3F39-43D0-95F8-4B804DAB3DE5}" Directory_="ARM64_Dir" Attributes="256" Condition="AiArm64" KeyPath="nefconw.exe_2"/>
-    <ROW Component="vigembus.cat" ComponentId="{CEA011F4-933A-459C-B951-B1BC17E4E671}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64 AND NOT AiArm64" KeyPath="vigembus.cat_1" Type="0"/>
-    <ROW Component="vigembus.cat_1" ComponentId="{300845F0-6D4A-4954-A8BC-93B4345FCD3E}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="ViGEmBus.sys_2" Type="0"/>
-    <ROW Component="vigembus.cat_2" ComponentId="{E0F5FE8D-4431-42DE-B766-8E05D53D2672}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="vigembus.cat_2"/>
+    <ROW Component="PuppetPadBus.cat" ComponentId="{CEA011F4-933A-459C-B951-B1BC17E4E671}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64 AND NOT AiArm64" KeyPath="PuppetPadBus.cat_1" Type="0"/>
+    <ROW Component="PuppetPadBus.cat_1" ComponentId="{300845F0-6D4A-4954-A8BC-93B4345FCD3E}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="PuppetPadBus.sys_2" Type="0"/>
+    <ROW Component="PuppetPadBus.cat_2" ComponentId="{E0F5FE8D-4431-42DE-B766-8E05D53D2672}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="PuppetPadBus.cat_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="AI32BitFiles" Title="32-bit" Description="32-bit Executables and Libraries" Display="5" Level="1" Directory_="APPDIR" Attributes="0"/>
@@ -66,29 +65,29 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="nefconw.exe" Component_="nefconw.exe" FileName="nefconw.exe" Attributes="0" SourcePath="..\drivers\x64\nefconw.exe" SelfReg="false"/>
-    <ROW File="ViGEmBus.sys" Component_="ViGEmBus.sys" FileName="ViGEmBus.sys" Attributes="0" SourcePath="..\drivers\x64\ViGEmBus.sys" SelfReg="false"/>
-    <ROW File="vigembus.cat" Component_="ViGEmBus.sys" FileName="vigembus.cat" Attributes="0" SourcePath="..\drivers\x64\vigembus.cat" SelfReg="false"/>
-    <ROW File="ViGEmBus.inf" Component_="ViGEmBus.sys" FileName="ViGEmBus.inf" Attributes="0" SourcePath="..\drivers\x64\ViGEmBus.inf" SelfReg="false"/>
-    <ROW File="LICENSE" Component_="ViGEmBus.sys" FileName="LICENSE" Attributes="0" SourcePath="..\drivers\x64\LICENSE" SelfReg="false"/>
+    <ROW File="PuppetPadBus.sys" Component_="PuppetPadBus.sys" FileName="PuppetPadBus.sys" Attributes="0" SourcePath="..\drivers\x64\PuppetPadBus.sys" SelfReg="false"/>
+    <ROW File="PuppetPadBus.cat" Component_="PuppetPadBus.sys" FileName="PuppetPadBus.cat" Attributes="0" SourcePath="..\drivers\x64\PuppetPadBus.cat" SelfReg="false"/>
+    <ROW File="PuppetPadBus.inf" Component_="PuppetPadBus.sys" FileName="PuppetPadBus.inf" Attributes="0" SourcePath="..\drivers\x64\PuppetPadBus.inf" SelfReg="false"/>
+    <ROW File="LICENSE" Component_="PuppetPadBus.sys" FileName="LICENSE" Attributes="0" SourcePath="..\drivers\x64\LICENSE" SelfReg="false"/>
     <ROW File="nefconw.exe_1" Component_="nefconw.exe_1" FileName="nefconw.exe" Attributes="0" SourcePath="..\drivers\x86\nefconw.exe" SelfReg="false"/>
-    <ROW File="vigembus.cat_1" Component_="vigembus.cat" FileName="vigembus.cat" Attributes="0" SourcePath="..\drivers\x86\vigembus.cat" SelfReg="false"/>
-    <ROW File="ViGEmBus.inf_1" Component_="vigembus.cat" FileName="ViGEmBus.inf" Attributes="0" SourcePath="..\drivers\x86\ViGEmBus.inf" SelfReg="false"/>
-    <ROW File="ViGEmBus.sys_1" Component_="vigembus.cat" FileName="ViGEmBus.sys" Attributes="0" SourcePath="..\drivers\x86\ViGEmBus.sys" SelfReg="false"/>
-    <ROW File="LICENSE_1" Component_="vigembus.cat" FileName="LICENSE" Attributes="0" SourcePath="..\drivers\x86\LICENSE" SelfReg="false"/>
+    <ROW File="PuppetPadBus.cat_1" Component_="PuppetPadBus.cat" FileName="PuppetPadBus.cat" Attributes="0" SourcePath="..\drivers\x86\PuppetPadBus.cat" SelfReg="false"/>
+    <ROW File="PuppetPadBus.inf_1" Component_="PuppetPadBus.cat" FileName="PuppetPadBus.inf" Attributes="0" SourcePath="..\drivers\x86\PuppetPadBus.inf" SelfReg="false"/>
+    <ROW File="PuppetPadBus.sys_1" Component_="PuppetPadBus.cat" FileName="PuppetPadBus.sys" Attributes="0" SourcePath="..\drivers\x86\PuppetPadBus.sys" SelfReg="false"/>
+    <ROW File="LICENSE_1" Component_="PuppetPadBus.cat" FileName="LICENSE" Attributes="0" SourcePath="..\drivers\x86\LICENSE" SelfReg="false"/>
     <ROW File="nefconw.exe_2" Component_="nefconw.exe_2" FileName="nefconw.exe" Attributes="0" SourcePath="..\drivers\arm64\nefconw.exe" SelfReg="false"/>
-    <ROW File="vigembus.cat_2" Component_="vigembus.cat_2" FileName="vigembus.cat" Attributes="0" SourcePath="..\drivers\arm64\vigembus.cat" SelfReg="false"/>
-    <ROW File="ViGEmBus.inf_2" Component_="ViGEmBus.inf" FileName="ViGEmBus.inf" Attributes="0" SourcePath="..\drivers\arm64\ViGEmBus.inf" SelfReg="false"/>
-    <ROW File="ViGEmBus.sys_2" Component_="vigembus.cat_1" FileName="ViGEmBus.sys" Attributes="0" SourcePath="..\drivers\arm64\ViGEmBus.sys" SelfReg="false"/>
+    <ROW File="PuppetPadBus.cat_2" Component_="PuppetPadBus.cat_2" FileName="PuppetPadBus.cat" Attributes="0" SourcePath="..\drivers\arm64\PuppetPadBus.cat" SelfReg="false"/>
+    <ROW File="PuppetPadBus.inf_2" Component_="PuppetPadBus.inf" FileName="PuppetPadBus.inf" Attributes="0" SourcePath="..\drivers\arm64\PuppetPadBus.inf" SelfReg="false"/>
+    <ROW File="PuppetPadBus.sys_2" Component_="PuppetPadBus.cat_1" FileName="PuppetPadBus.sys" Attributes="0" SourcePath="..\drivers\arm64\PuppetPadBus.sys" SelfReg="false"/>
     <ROW File="LICENSE_2" Component_="LICENSE" FileName="LICENSE" Attributes="0" SourcePath="..\drivers\arm64\LICENSE" SelfReg="false"/>
-    <ROW File="ViGEmBus.pdb_2" Component_="ViGEmBus.pdb_2" FileName="ViGEmBus.pdb" Attributes="0" SourcePath="..\artifacts\bin\arm64\ViGEmBus.pdb" SelfReg="false"/>
-    <ROW File="ViGEmBus.pdb_3" Component_="ViGEmBus.pdb_3" FileName="ViGEmBus.pdb" Attributes="0" SourcePath="..\artifacts\bin\x86\ViGEmBus.pdb" SelfReg="false"/>
-    <ROW File="ViGEmBus.pdb" Component_="ViGEmBus.pdb" FileName="ViGEmBus.pdb" Attributes="0" SourcePath="..\artifacts\bin\x64\ViGEmBus.pdb" SelfReg="false"/>
+    <ROW File="PuppetPadBus.pdb_2" Component_="PuppetPadBus.pdb_2" FileName="PuppetPadBus.pdb" Attributes="0" SourcePath="..\artifacts\bin\arm64\PuppetPadBus.pdb" SelfReg="false"/>
+    <ROW File="PuppetPadBus.pdb_3" Component_="PuppetPadBus.pdb_3" FileName="PuppetPadBus.pdb" Attributes="0" SourcePath="..\artifacts\bin\x86\PuppetPadBus.pdb" SelfReg="false"/>
+    <ROW File="PuppetPadBus.pdb" Component_="PuppetPadBus.pdb" FileName="PuppetPadBus.pdb" Attributes="0" SourcePath="..\artifacts\bin\x64\PuppetPadBus.pdb" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="Setup Files" Languages="en_GB" InstallationType="2" CabsLocation="1" CompressCabs="false" UseLzma="true" LzmaMethod="2" LzmaCompressionLevel="4" PackageType="1" FilesInsideExe="true" ExeIconPath="ViGEm.ico" ExtractionFolder="[CommonAppDataFolder]Nefarius Software Solutions\[|ProductName] [|ProductVersion]\install" ExtUI="true" UseLargeSchema="true" ExeName="ViGEmBus_[|ProductVersion]_x64_x86_arm64" MsiPackageType="AI_ALL"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="Setup Files" Languages="en_GB" InstallationType="2" CabsLocation="1" CompressCabs="false" UseLzma="true" LzmaMethod="2" LzmaCompressionLevel="4" PackageType="1" FilesInsideExe="true" ExeIconPath="PuppetPad.ico" ExtractionFolder="[CommonAppDataFolder]PuppetPad Project\[|ProductName] [|ProductVersion]\install" ExtUI="true" UseLargeSchema="true" ExeName="PuppetPadBus_[|ProductVersion]_x64_x86_arm64" MsiPackageType="AI_ALL"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
@@ -96,7 +95,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="7" SignTool="0" UseSha256="1" Thumbprint="f88a20d1f8f87c188c7b7d65a1f897332b26cae6 Subject: Nefarius Software Solutions e.U.&#10;Issuer: DigiCert Global G3 Code Signing ECC SHA384 2021 CA1&#10;Valid from 11/25/2021 to 02/13/2025&#10;User\MY" Subject="CN=Nefarius Software Solutions e.U., O=Nefarius Software Solutions e.U., L=Wels, C=AT, SERIALNUMBER=505039f, OID.1.3.6.1.4.1.311.60.2.1.1=Wels, OID.1.3.6.1.4.1.311.60.2.1.2=Oberösterreich, OID.1.3.6.1.4.1.311.60.2.1.3=AT, OID.2.5.4.15=Private Organization"/>
+    <ROW TimeStampUrl="http://timestamp.digicert.com" SignerDescription="[|ProductName]" SignOptions="7" SignTool="0" UseSha256="1" Thumbprint="f88a20d1f8f87c188c7b7d65a1f897332b26cae6 Subject: PuppetPad Project&#10;Issuer: DigiCert Global G3 Code Signing ECC SHA384 2021 CA1&#10;Valid from 11/25/2021 to 02/13/2025&#10;User\MY" Subject="CN=PuppetPad Project, O=PuppetPad Project, L=Wels, C=AT, SERIALNUMBER=505039f, OID.1.3.6.1.4.1.311.60.2.1.1=Wels, OID.1.3.6.1.4.1.311.60.2.1.2=Oberösterreich, OID.1.3.6.1.4.1.311.60.2.1.3=AT, OID.2.5.4.15=Private Organization"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
@@ -205,43 +204,43 @@
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="AI_ScheduleTasks2" Type="11265" Source="aischeduler2.dll" Target="ScheduleTasks" WithoutSeq="true"/>
     <ROW Action="AI_UninstallTasks2" Type="1" Source="aischeduler2.dll" Target="UninstallTasks"/>
-    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[AI_ProgramFiles]Nefarius Software Solutions\[ProductName]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[AI_ProgramFiles]PuppetPad Project\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
-    <ROW Action="arm64_AddDeviceNode" Type="1106" Source="nefconw.exe_2" Target="--create-device-node --hardware-id Nefarius\ViGEmBus\Gen1 --class-name System --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="arm64_InstallDriver" Type="1106" Source="nefconw.exe_2" Target="--install-driver --inf-path &quot;[#ViGEmBus.inf_2]&quot;"/>
-    <ROW Action="arm64_UninstallDevice" Type="1106" Source="nefconw.exe_2" Target="--remove-device-node --hardware-id Nefarius\ViGEmBus\Gen1 --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="arm64_UninstallDriver" Type="1106" Source="nefconw.exe_2" Target="--uninstall-driver --inf-path &quot;[#ViGEmBus.inf]&quot;"/>
-    <ROW Action="x64_AddDeviceNode" Type="1106" Source="nefconw.exe" Target="--create-device-node --hardware-id Nefarius\ViGEmBus\Gen1 --class-name System --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="x64_InstallDriver" Type="1106" Source="nefconw.exe" Target="--install-driver --inf-path &quot;[#ViGEmBus.inf]&quot;"/>
-    <ROW Action="x64_UninstallDevice" Type="1106" Source="nefconw.exe" Target="--remove-device-node --hardware-id Nefarius\ViGEmBus\Gen1 --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="x64_UninstallDevice_Old" Type="1106" Source="nefconw.exe" Target="--remove-device-node --hardware-id Root\ViGEmBus --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="x64_UninstallDriver" Type="1106" Source="nefconw.exe" Target="--uninstall-driver --inf-path &quot;[#ViGEmBus.inf]&quot;"/>
-    <ROW Action="x86_AddDeviceNode" Type="1106" Source="nefconw.exe_1" Target="--create-device-node --hardware-id Nefarius\ViGEmBus\Gen1 --class-name System --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="x86_InstallDriver" Type="1106" Source="nefconw.exe_1" Target="--install-driver --inf-path &quot;[#ViGEmBus.inf_1]&quot;"/>
-    <ROW Action="x86_UninstallDevice" Type="1106" Source="nefconw.exe_1" Target="--remove-device-node --hardware-id Nefarius\ViGEmBus\Gen1 --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="x86_UninstallDevice_Old" Type="1106" Source="nefconw.exe_1" Target="--remove-device-node --hardware-id Root\ViGEmBus --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
-    <ROW Action="x86_UninstallDriver" Type="1106" Source="nefconw.exe_1" Target="--uninstall-driver --inf-path &quot;[#ViGEmBus.inf]&quot;"/>
+    <ROW Action="arm64_AddDeviceNode" Type="1106" Source="nefconw.exe_2" Target="--create-device-node --hardware-id PuppetPad\PuppetPadBus\Gen1 --class-name System --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="arm64_InstallDriver" Type="1106" Source="nefconw.exe_2" Target="--install-driver --inf-path &quot;[#PuppetPadBus.inf_2]&quot;"/>
+    <ROW Action="arm64_UninstallDevice" Type="1106" Source="nefconw.exe_2" Target="--remove-device-node --hardware-id PuppetPad\PuppetPadBus\Gen1 --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="arm64_UninstallDriver" Type="1106" Source="nefconw.exe_2" Target="--uninstall-driver --inf-path &quot;[#PuppetPadBus.inf]&quot;"/>
+    <ROW Action="x64_AddDeviceNode" Type="1106" Source="nefconw.exe" Target="--create-device-node --hardware-id PuppetPad\PuppetPadBus\Gen1 --class-name System --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="x64_InstallDriver" Type="1106" Source="nefconw.exe" Target="--install-driver --inf-path &quot;[#PuppetPadBus.inf]&quot;"/>
+    <ROW Action="x64_UninstallDevice" Type="1106" Source="nefconw.exe" Target="--remove-device-node --hardware-id PuppetPad\PuppetPadBus\Gen1 --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="x64_UninstallDevice_Old" Type="1106" Source="nefconw.exe" Target="--remove-device-node --hardware-id Root\PuppetPadBus --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="x64_UninstallDriver" Type="1106" Source="nefconw.exe" Target="--uninstall-driver --inf-path &quot;[#PuppetPadBus.inf]&quot;"/>
+    <ROW Action="x86_AddDeviceNode" Type="1106" Source="nefconw.exe_1" Target="--create-device-node --hardware-id PuppetPad\PuppetPadBus\Gen1 --class-name System --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="x86_InstallDriver" Type="1106" Source="nefconw.exe_1" Target="--install-driver --inf-path &quot;[#PuppetPadBus.inf_1]&quot;"/>
+    <ROW Action="x86_UninstallDevice" Type="1106" Source="nefconw.exe_1" Target="--remove-device-node --hardware-id PuppetPad\PuppetPadBus\Gen1 --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="x86_UninstallDevice_Old" Type="1106" Source="nefconw.exe_1" Target="--remove-device-node --hardware-id Root\PuppetPadBus --class-guid 4D36E97D-E325-11CE-BFC1-08002BE10318"/>
+    <ROW Action="x86_UninstallDriver" Type="1106" Source="nefconw.exe_1" Target="--uninstall-driver --inf-path &quot;[#PuppetPadBus.inf]&quot;"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatCompsComponent">
     <ROW Feature_="MainFeature" Component_="APPDIR"/>
     <ROW Feature_="MainFeature" Component_="ProductInformation"/>
     <ROW Feature_="MainFeature" Component_="AI_ExePath"/>
     <ROW Feature_="AI64BitFiles" Component_="nefconw.exe"/>
-    <ROW Feature_="AI64BitFiles" Component_="ViGEmBus.sys"/>
+    <ROW Feature_="AI64BitFiles" Component_="PuppetPadBus.sys"/>
     <ROW Feature_="AI32BitFiles" Component_="nefconw.exe_1"/>
-    <ROW Feature_="AI32BitFiles" Component_="vigembus.cat"/>
+    <ROW Feature_="AI32BitFiles" Component_="PuppetPadBus.cat"/>
     <ROW Feature_="ARM64" Component_="nefconw.exe_2"/>
-    <ROW Feature_="ARM64" Component_="vigembus.cat_2"/>
-    <ROW Feature_="ARM64" Component_="ViGEmBus.inf"/>
-    <ROW Feature_="ARM64" Component_="vigembus.cat_1"/>
+    <ROW Feature_="ARM64" Component_="PuppetPadBus.cat_2"/>
+    <ROW Feature_="ARM64" Component_="PuppetPadBus.inf"/>
+    <ROW Feature_="ARM64" Component_="PuppetPadBus.cat_1"/>
     <ROW Feature_="ARM64" Component_="LICENSE"/>
-    <ROW Feature_="ARM64" Component_="ViGEmBus.pdb_2"/>
-    <ROW Feature_="AI32BitFiles" Component_="ViGEmBus.pdb_3"/>
-    <ROW Feature_="AI64BitFiles" Component_="ViGEmBus.pdb"/>
+    <ROW Feature_="ARM64" Component_="PuppetPadBus.pdb_2"/>
+    <ROW Feature_="AI32BitFiles" Component_="PuppetPadBus.pdb_3"/>
+    <ROW Feature_="AI64BitFiles" Component_="PuppetPadBus.pdb"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
-    <ROW Name="ViGEm.exe" SourcePath="ViGEm.ico" Index="0"/>
+    <ROW Name="PuppetPad.exe" SourcePath="PuppetPad.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>

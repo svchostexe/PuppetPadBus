@@ -1,0 +1,46 @@
+PuppetPad Bus Driver
+====================
+
+This product is a derivative work of the ViGEm Bus Driver (ViGEmBus).
+
+Original work
+-------------
+
+  ViGEmBus - Virtual Gamepad Emulation Framework, Windows kernel-mode bus driver
+  Copyright (c) 2016-2022 Nefarius Software Solutions e.U. and Contributors
+  Licensed under the BSD 3-Clause License. See LICENSE.
+
+  Upstream repository: https://github.com/nefarius/ViGEmBus
+  Upstream status:     retired and archived, 2 November 2023
+
+Nature of this fork
+-------------------
+
+PuppetPadBus is an independent, community-maintained continuation. It is not
+affiliated with, endorsed by, or supported by Nefarius Software Solutions e.U.,
+ViGEM GmbH, or any contributor to the original project.
+
+The project was renamed from the original. Neither the original project name nor
+the names of the copyright holder or its contributors are used to identify,
+brand or promote this derived work, in keeping with clause 3 of the BSD 3-Clause
+License. Where the original project is named in documentation, it is named
+factually, to identify the work this software derives from.
+
+Copyright notices from the original work are retained unmodified throughout the
+source tree, as clauses 1 and 2 of the license require. Modifications made in
+this fork are copyright (c) 2026 the PuppetPad Project contributors and are
+released under the same BSD 3-Clause License.
+
+Third-party components
+----------------------
+
+  ViGEmClient (git submodule, sdk/)
+  Copyright (c) 2018 Benjamin Hoeglinger-Stelzer
+  Licensed under the MIT License. See sdk/LICENSE.
+
+  Driver Module Framework (DMF) - external build dependency, not redistributed
+  Copyright (c) Microsoft Corporation
+  Licensed under the MIT License. https://github.com/microsoft/DMF
+
+  nefconw - external installer utility, not redistributed in this repository
+  https://github.com/nefarius/nefcon
