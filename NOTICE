@@ -47,6 +47,10 @@ Third-party components
   Copyright (c) 2018 Benjamin Hoeglinger-Stelzer
   Licensed under the MIT License. See sdk/LICENSE.
 
+  Consumed via https://github.com/svchostexe/ViGEmClient, a fork of the
+  upstream project taken so the library can continue to receive changes.
+  Upstream is archived and is not accepting them.
+
   Driver Module Framework (DMF) - external build dependency, not redistributed
   Copyright (c) Microsoft Corporation
   Licensed under the MIT License. https://github.com/microsoft/DMF
