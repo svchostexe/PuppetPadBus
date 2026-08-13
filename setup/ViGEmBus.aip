@@ -8,12 +8,9 @@
     <ROW Property="AI_FINDEXE_TITLE" Value="Select the installation package for [|ProductName]" ValueLocId="AI.Property.FindExeTitle"/>
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
-    <ROW Property="ARPHELPLINK" Value="https://vigem.org/projects/ViGEm/"/>
     <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="ARPNOREPAIR" Value="1" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="ARPPRODUCTICON" Value="ViGEm.exe" Type="8"/>
-    <ROW Property="ARPURLINFOABOUT" Value="https://vigem.org/Community-Support/"/>
-    <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/ViGEm/ViGEmBus/releases"/>
     <ROW Property="AiLicenseAgreementLink" Value="https://github.com/ViGEm/ViGEmBus/blob/master/LICENSE" Type="4"/>
     <ROW Property="IAgree" Value="No" Type="4"/>
     <ROW Property="Manufacturer" Value="Nefarius Software Solutions e.U."/>
@@ -56,7 +53,6 @@
     <ROW Component="nefconw.exe" ComponentId="{AEADABD6-0FA7-4BF5-A3F5-1043F5D911F9}" Directory_="APPDIR" Attributes="256" Condition="VersionNT64 AND NOT AiArm64" KeyPath="nefconw.exe"/>
     <ROW Component="nefconw.exe_1" ComponentId="{E0BCC5D1-4762-490A-AD7E-9A36C8DF724C}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64 AND NOT AiArm64" KeyPath="nefconw.exe_1"/>
     <ROW Component="nefconw.exe_2" ComponentId="{B25A0000-3F39-43D0-95F8-4B804DAB3DE5}" Directory_="ARM64_Dir" Attributes="256" Condition="AiArm64" KeyPath="nefconw.exe_2"/>
-    <ROW Component="updater.exe" ComponentId="{08EB2B6D-47C1-4EED-8A5C-FF31B6F28651}" Directory_="APPDIR" Attributes="0" KeyPath="updater.exe"/>
     <ROW Component="vigembus.cat" ComponentId="{CEA011F4-933A-459C-B951-B1BC17E4E671}" Directory_="AI_Bin32_Dir" Attributes="0" Condition="NOT VersionNT64 AND NOT AiArm64" KeyPath="vigembus.cat_1" Type="0"/>
     <ROW Component="vigembus.cat_1" ComponentId="{300845F0-6D4A-4954-A8BC-93B4345FCD3E}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="ViGEmBus.sys_2" Type="0"/>
     <ROW Component="vigembus.cat_2" ComponentId="{E0F5FE8D-4431-42DE-B766-8E05D53D2672}" Directory_="ARM64_Dir" Attributes="0" Condition="AiArm64" KeyPath="vigembus.cat_2"/>
@@ -79,7 +75,6 @@
     <ROW File="ViGEmBus.inf_1" Component_="vigembus.cat" FileName="ViGEmBus.inf" Attributes="0" SourcePath="..\drivers\x86\ViGEmBus.inf" SelfReg="false"/>
     <ROW File="ViGEmBus.sys_1" Component_="vigembus.cat" FileName="ViGEmBus.sys" Attributes="0" SourcePath="..\drivers\x86\ViGEmBus.sys" SelfReg="false"/>
     <ROW File="LICENSE_1" Component_="vigembus.cat" FileName="LICENSE" Attributes="0" SourcePath="..\drivers\x86\LICENSE" SelfReg="false"/>
-    <ROW File="updater.exe" Component_="updater.exe" FileName="VIGEMB~1.EXE|ViGEmBus_Updater.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_STUBS&gt;updater.exe" SelfReg="false" DigSign="true"/>
     <ROW File="nefconw.exe_2" Component_="nefconw.exe_2" FileName="nefconw.exe" Attributes="0" SourcePath="..\drivers\arm64\nefconw.exe" SelfReg="false"/>
     <ROW File="vigembus.cat_2" Component_="vigembus.cat_2" FileName="vigembus.cat" Attributes="0" SourcePath="..\drivers\arm64\vigembus.cat" SelfReg="false"/>
     <ROW File="ViGEmBus.inf_2" Component_="ViGEmBus.inf" FileName="ViGEmBus.inf" Attributes="0" SourcePath="..\drivers\arm64\ViGEmBus.inf" SelfReg="false"/>
@@ -209,7 +204,6 @@
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="AI_ScheduleTasks2" Type="11265" Source="aischeduler2.dll" Target="ScheduleTasks" WithoutSeq="true"/>
-    <ROW Action="AI_UPDATER_UNINSTALL" Type="82" Source="updater.exe" Target="/clean silent"/>
     <ROW Action="AI_UninstallTasks2" Type="1" Source="aischeduler2.dll" Target="UninstallTasks"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[AI_ProgramFiles]Nefarius Software Solutions\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
@@ -237,7 +231,6 @@
     <ROW Feature_="AI64BitFiles" Component_="ViGEmBus.sys"/>
     <ROW Feature_="AI32BitFiles" Component_="nefconw.exe_1"/>
     <ROW Feature_="AI32BitFiles" Component_="vigembus.cat"/>
-    <ROW Feature_="MainFeature" Component_="updater.exe"/>
     <ROW Feature_="ARM64" Component_="nefconw.exe_2"/>
     <ROW Feature_="ARM64" Component_="vigembus.cat_2"/>
     <ROW Feature_="ARM64" Component_="ViGEmBus.inf"/>
@@ -249,18 +242,6 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="ViGEm.exe" SourcePath="ViGEm.ico" Index="0"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
-    <ROW IniFile="AppDir" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="AppDir" Value="[APPDIR]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="ApplicationName" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="ApplicationName" Value="[ProductName]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="ApplicationVersion" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="ApplicationVersion" Value="[ProductVersion]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="CheckFrequency" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="CheckFrequency" Value="2" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="CompanyName" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="CompanyName" Value="[Manufacturer]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="DefaultCommandLine" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="DefaultCommandLine" Value="/checknow" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="DownloadsFolder" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="DownloadsFolder" Value="[CommonAppDataFolder][Manufacturer]\[ProductName]\updates\" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="Flags" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="Flags" Value="PerMachine|ShowConfigOptionsButton" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="ID" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="ID" Value="[UpgradeCode]" Action="0" Component_="updater.exe"/>
-    <ROW IniFile="URL" FileName="VIGEMB~1.INI|ViGEmBus_Updater.ini" DirProperty="APPDIR" Section="General" Key="URL" Value="https://updates.vigem.org/api/github/ViGEm/ViGEmBus/updates" Action="0" Component_="updater.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -284,7 +265,6 @@
     <ROW Action="AI_REDIRECT_32BIT_SH_FOLDER" Condition="NOT VersionNT64 AND NOT AI_Disable32BitRedirection" Sequence="799"/>
     <ROW Action="AI_SETPROGRAMFILES64" Condition="VersionNT64" Sequence="748"/>
     <ROW Action="AI_SETPROGRAMFILES" Condition="NOT VersionNT64" Sequence="749"/>
-    <ROW Action="AI_UPDATER_UNINSTALL" Condition="($updater.exe = 2) AND (?updater.exe = 3) AND NOT (UPGRADINGPRODUCTCODE)" Sequence="1551"/>
     <ROW Action="AI_ProcessTasks2" Condition="(VersionNT &gt;= 600) AND (REMOVE&lt;&gt;&quot;ALL&quot;)" Sequence="1624"/>
     <ROW Action="AI_UninstallTasks2" Condition="(VersionNT &gt;= 600) AND (REMOVE=&quot;ALL&quot;)" Sequence="1699"/>
     <ROW Action="ForceReboot" Condition="AI_UPGRADE&lt;&gt;&quot;No&quot; AND OLDPRODUCTS AND AFTERREBOOT&lt;&gt;1" Sequence="1501" SeqType="0"/>
@@ -347,11 +327,5 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
     <ROW UpgradeCode="{0A4A02DE-0BE3-4BF4-91F0-1EA47AD26881}" VersionMax="1.17.333.0" Attributes="1541" ActionProperty="UPGRADE_1"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.ScheduledTasksComponent">
-    <ROW TaskId="AI_ViGEmBus_Updater" TaskName="ViGEmBus_Updater" Run="[#updater.exe]" CmdLine="/silent" WorkDir="[APPDIR]" UserProp="[%UserDomain]\[LogonUser]" Flags="24576" Trigger="1|1|1|1|0|0|0||20480|0|0" Settings="2|4320" Condition="1" TaskVersion="2.0"/>
-  </COMPONENT>
-  <COMPONENT cid="caphyon.advinst.msicomp.UpdaterComponent">
-    <ROW Updater="updater.exe" URL="URL" SearchFreq="CheckFrequency" DownloadsFolder="DownloadsFolder" ID="ID" TargetDir="AppDir" AppName="ApplicationName" AppVersion="ApplicationVersion" CompanyName="CompanyName" DefCommandLine="DefaultCommandLine" Flags="Flags" IconPath="ViGEm.ico" IconIndex="0" UnistallCASeq="AI_UPDATER_UNINSTALL" TaskId="AI_ViGEmBus_Updater" Description="[|UpdaterName] [|ProductVersion]"/>
   </COMPONENT>
 </DOCUMENT>
