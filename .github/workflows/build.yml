@@ -68,20 +68,40 @@ jobs:
         shell: pwsh
 
       - name: Clone and patch DMF
-        # git apply --reject exits non-zero when any hunk rejects, and four
-        # always do (user-mode DmfU* projects). Ignore that, then verify the
-        # kernel-mode project we actually build really was patched.
+        # Two properties of GitHub's pwsh shell fight this step, and both have to
+        # be handled explicitly:
+        #
+        #   - it sets $ErrorActionPreference = 'Stop', which turns git's ordinary
+        #     stderr progress output into a terminating error;
+        #   - it appends "exit $LASTEXITCODE" to the script, so a non-zero code
+        #     left behind by ANY earlier command fails the step, even if later
+        #     commands succeeded.
+        #
+        # git apply --reject legitimately exits non-zero here: four hunks always
+        # reject, all in DMF's user-mode DmfU* projects. So the exit code is
+        # captured and reported rather than inherited, and the step ends with an
+        # explicit exit 0 after asserting the patch landed where it matters.
         run: |
-          git clone --quiet https://github.com/microsoft/DMF.git "$env:RUNNER_TEMP\DMF"
-          cd "$env:RUNNER_TEMP\DMF"
-          git checkout --quiet $env:DMF_REF
-          git apply --reject "$env:GITHUB_WORKSPACE\patches\dmf.diff"
-          Write-Host "git apply exit code $LASTEXITCODE (non-zero is expected: DmfU* hunks reject)"
+          $ErrorActionPreference = 'Continue'
+
+          git clone --quiet https://github.com/microsoft/DMF.git "$env:RUNNER_TEMP\DMF" 2>&1 | ForEach-Object { "$_" }
+          if ($LASTEXITCODE -ne 0) { Write-Host "::error::DMF clone failed ($LASTEXITCODE)"; exit 1 }
+
+          Set-Location "$env:RUNNER_TEMP\DMF"
+
+          git checkout --quiet $env:DMF_REF 2>&1 | ForEach-Object { "$_" }
+          if ($LASTEXITCODE -ne 0) { Write-Host "::error::checkout of $env:DMF_REF failed ($LASTEXITCODE)"; exit 1 }
+
+          git apply --reject "$env:GITHUB_WORKSPACE\patches\dmf.diff" 2>&1 | ForEach-Object { "$_" }
+          Write-Host "git apply exited $LASTEXITCODE (non-zero is expected: DmfU* hunks reject)"
+
           $dmfk = Get-Content "Dmf\Solution\DmfK\DmfK.vcxproj" -Raw
           if ($dmfk -match 'LatestTargetPlatformVersion') {
-            throw "DmfK.vcxproj still references LatestTargetPlatformVersion - the patch did not apply where it matters"
+            Write-Host "::error::DmfK.vcxproj still references LatestTargetPlatformVersion - the patch did not apply where it matters"
+            exit 1
           }
           Write-Host "DmfK.vcxproj patched as expected"
+          exit 0
         shell: pwsh
 
       - name: Map platform name for DMF
