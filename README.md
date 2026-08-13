@@ -67,11 +67,30 @@ Copyright on the original work remains with Nefarius Software Solutions e.U. and
 
 ## How to build
 
+### Getting the source
+
+The client library is a submodule, so clone recursively:
+
+```
+git clone --recurse-submodules https://github.com/svchostexe/PuppetPadBus.git
+```
+
+If you already cloned without it: `git submodule update --init`.
+
 ### Prerequisites
 
-- [Visual Studio 2019](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-1-install-visual-studio)
+- [Visual Studio 2019](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-1-install-visual-studio), including the build tools for every architecture you intend to target — ARM64 needs `VC.Tools.ARM64` and `VC.Runtimes.ARM64.Spectre`, which are not installed by default
 - [WDK for Windows 10, version 2004](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-2-install-the-wdk) (`10.0.19041.0`)
-- [Driver Module Framework (DMF)](https://github.com/microsoft/DMF), cloned separately, with `patches/dmf.diff` applied
+- [Driver Module Framework (DMF)](https://github.com/microsoft/DMF), cloned separately:
+
+```
+git clone https://github.com/microsoft/DMF.git
+cd DMF
+git apply --reject <path to this repo>\patches\dmf.diff
+msbuild Dmf.sln /p:Configuration=Release /p:Platform=x64
+```
+
+DMF must be built once per architecture before the driver will link against it. Note that DMF calls the 32-bit platform `Win32` where this solution calls it `x86`, and that only `Release` is supported — DMF produces no Debug output, so a Debug build of the driver fails at link.
 
 ### Building
 
@@ -82,9 +101,9 @@ set DmfRootPath=<path to your DMF clone>
 msbuild PuppetPadBus.sln /p:Configuration=Release /p:Platform=x64
 ```
 
-`Platform` accepts `x64`, `x86` or `ARM64`. Only the `Release` configuration is supported — DMF is built for Release only, so a Debug build fails at link. DMF must be built once per architecture before the driver will link against it, and note that DMF itself uses `Win32` where this solution uses `x86`.
+`Platform` accepts `x64`, `x86` or `ARM64`. `DmfRootPath` must point at the **root of the DMF clone**, not its parent — the default in `sys/Dmf.props` assumes a different layout and will fail with a misleading "cannot open include file `DmfModules.Library.h`".
 
-Output lands in `bin\<arch>\`.
+Output lands in `bin\<arch>\`, alongside the generated catalog.
 
 ## Contributing
 
