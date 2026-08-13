@@ -39,15 +39,11 @@ Windows 10 and 11, on x86, x64 and ARM64. Windows Server is untested and unsuppo
 
 ## Installation
 
-**There are no pre-built signed releases.** You build it yourself.
+**There are no pre-built signed releases.** You build it yourself, and running the result requires taking your machine out of its default security posture.
 
-This matters more than it sounds. Windows will not load an unsigned kernel-mode driver on a normal x64 install. To run a self-built driver you must enable test signing:
+Concretely: you must disable Secure Boot, enable test signing, and sign the driver with your own certificate — Windows will not load an unsigned kernel driver, and test signing widens *which* signatures are accepted rather than removing the requirement. Once enabled, **any** test-signed driver can load on that machine, not just this one.
 
-```
-bcdedit /set testsigning on
-```
-
-and reboot. That disables a meaningful security control on your machine — it permits *any* test-signed driver to load, not just this one. Understand that trade-off before you do it. If you are not comfortable with it, this driver is not currently something you should install.
+**[docs/installing.md](docs/installing.md) covers the whole procedure**, including uninstall and the failure modes worth recognising. Read it before you start. If that trade-off is not acceptable to you — and it reasonably might not be on a machine you care about — this driver is not currently something you should install.
 
 Production signing requires an EV code-signing certificate and Microsoft attestation signing through Partner Center. If that changes for this project, it will be announced in the releases.
 

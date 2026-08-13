@@ -1,0 +1,123 @@
+# Kernel-mode driver build for x64, x86 and ARM64.
+#
+# STATUS: this workflow has never run. It was written from the known-good local
+# build recipe, but GitHub's Windows runners do not ship the WDK, and the exact
+# package that provides it is the one step that could not be verified offline.
+# Expect to adjust the "Install WDK" step on the first run. The "Report SDK/WDK
+# versions" step exists precisely to tell you what the runner actually has, so a
+# first failure is informative rather than mysterious.
+#
+# The version pin is the thing most likely to bite. Both this driver and the
+# patched DMF projects hard-code WindowsTargetPlatformVersion 10.0.19041.0. A
+# runner carrying only a newer WDK will fail to find that toolset, so the builds
+# below pass WindowsTargetPlatformVersion explicitly and WDK_VERSION drives it.
+# Set WDK_VERSION to whatever the report step shows.
+
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  DMF_REF: 31558c2
+  WDK_VERSION: "10.0.19041.0"
+
+jobs:
+  build:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [x64, x86, ARM64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install WDK
+        run: |
+          choco install windowsdriverkit11 -y --no-progress
+        shell: pwsh
+
+      - name: Report SDK/WDK versions
+        # Diagnostic, not a gate. Read this output before debugging anything else.
+        run: |
+          $root = "C:\Program Files (x86)\Windows Kits\10"
+          Write-Host "Installed SDK/WDK versions under $root\bin:"
+          Get-ChildItem "$root\bin" -Directory -ErrorAction SilentlyContinue |
+            Where-Object Name -match '^10\.' | ForEach-Object { "  $($_.Name)" }
+          Write-Host "Kernel-mode libs present for:"
+          Get-ChildItem "$root\Lib\$env:WDK_VERSION\km" -Directory -ErrorAction SilentlyContinue |
+            ForEach-Object { "  $($_.Name)" }
+        shell: pwsh
+
+      - name: Clone and patch DMF
+        run: |
+          git clone --quiet https://github.com/microsoft/DMF.git "$env:RUNNER_TEMP\DMF"
+          cd "$env:RUNNER_TEMP\DMF"
+          git checkout --quiet $env:DMF_REF
+          git apply --reject "$env:GITHUB_WORKSPACE\patches\dmf.diff"
+        shell: pwsh
+
+      - name: Map platform name for DMF
+        # DMF calls the 32-bit platform Win32; this solution calls it x86.
+        id: plat
+        run: |
+          $dmf = if ("${{ matrix.platform }}" -eq "x86") { "Win32" } else { "${{ matrix.platform }}" }
+          "dmf_platform=$dmf" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Build DMF
+        # Release only. DMF produces no Debug output, so a Debug driver build
+        # would fail at link with a missing DmfK.lib.
+        run: |
+          msbuild "$env:RUNNER_TEMP\DMF\Dmf.sln" `
+            /p:Configuration=Release `
+            /p:Platform=${{ steps.plat.outputs.dmf_platform }} `
+            /p:WindowsTargetPlatformVersion=$env:WDK_VERSION `
+            /m /v:minimal /nologo
+        shell: pwsh
+
+      - name: Build driver
+        # Build the solution, never sys/PuppetPadBus.vcxproj directly: the
+        # project resolves includes through $(SolutionDir) and fails with a
+        # misleading "cannot open include file 'ViGEm/Common.h'" standalone.
+        env:
+          DmfRootPath: ${{ runner.temp }}\DMF
+        run: |
+          msbuild PuppetPadBus.sln `
+            /p:Configuration=Release `
+            /p:Platform=${{ matrix.platform }} `
+            /p:WindowsTargetPlatformVersion=$env:WDK_VERSION `
+            /m /v:minimal /nologo
+        shell: pwsh
+
+      - name: Verify driver was produced
+        run: |
+          $arch = "${{ matrix.platform }}".ToLower()
+          $sys = "bin\$arch\PuppetPadBus.sys"
+          if (-not (Test-Path $sys)) { throw "expected $sys, not found" }
+          Write-Host "built: $sys"
+          # Builds are intentionally unsigned (SignMode=Off). See docs/installing.md.
+          (Get-AuthenticodeSignature $sys).Status
+        shell: pwsh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: PuppetPadBus-${{ matrix.platform }}
+          path: |
+            bin/**/PuppetPadBus.sys
+            bin/**/PuppetPadBus.inf
+            bin/**/*.cat
+            bin/**/PuppetPadBus.pdb
+          if-no-files-found: error
