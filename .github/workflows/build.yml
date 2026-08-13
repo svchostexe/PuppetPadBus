@@ -112,21 +112,63 @@ jobs:
           "dmf_platform=$dmf" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
+      - name: Report driver toolset availability
+        # Diagnostic only, never fails the job. The kernel-mode toolset comes from
+        # the WDK's Visual Studio integration, which is installed separately from
+        # the WDK itself -- when it is missing, msbuild reports MSB8020 and that
+        # reads like a missing SDK rather than missing VS integration.
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (Test-Path $vswhere) {
+            & $vswhere -products * -property installationPath | ForEach-Object {
+              Write-Host "VS instance: $_"
+              $tsDir = "$_\MSBuild\Microsoft\VC"
+              Get-ChildItem $tsDir -Directory -ErrorAction SilentlyContinue |
+                ForEach-Object { Write-Host "  VC targets: $($_.Name)" }
+              Get-ChildItem "$_\MSBuild\Microsoft\WindowsDriver" -Directory -ErrorAction SilentlyContinue |
+                ForEach-Object { Write-Host "  WindowsDriver targets: $($_.Name)" }
+            }
+          }
+          $vsix = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\Vsix" -Recurse -Filter *.vsix -ErrorAction SilentlyContinue
+          Write-Host "WDK VSIX packages found: $($vsix.Count)"
+          $vsix | ForEach-Object { Write-Host "  $($_.FullName)" }
+          exit 0
+        shell: pwsh
+
       - name: Build DMF (DmfK only)
         # Only DmfK: the driver links DmfK.lib and nothing else from DMF, and the
         # user-mode projects are exactly the ones the patch cannot fix. Release
         # only -- DMF produces no Debug output, so a Debug driver build would fail
         # at link with a missing DmfK.lib.
+        #
+        # msbuild output is captured and its errors re-emitted as ::error::
+        # annotations, because annotations are readable from the API without
+        # authentication while raw job logs are not. Without this, a failure here
+        # surfaces only as "Process completed with exit code 1".
         run: |
-          msbuild "$env:RUNNER_TEMP\DMF\Dmf.sln" `
+          $ErrorActionPreference = 'Continue'
+          $log = & msbuild "$env:RUNNER_TEMP\DMF\Dmf.sln" `
             /t:DmfK `
             /p:Configuration=Release `
             /p:Platform=${{ steps.plat.outputs.dmf_platform }} `
             /p:WindowsTargetPlatformVersion=$env:WDK_VERSION `
-            /m /v:minimal /nologo
+            /m /v:minimal /nologo 2>&1 | ForEach-Object { "$_" }
+          $code = $LASTEXITCODE
+          $log | ForEach-Object { Write-Host $_ }
+          if ($code -ne 0) {
+            $log | Where-Object { $_ -match 'error|MSB\d{4}' } | Select-Object -Last 10 |
+              ForEach-Object { Write-Host "::error::DMF: $_" }
+            Write-Host "::error::msbuild /t:DmfK exited $code"
+            exit 1
+          }
           $lib = "$env:RUNNER_TEMP\DMF\Release\${{ steps.plat.outputs.dmf_platform }}\lib\DmfK\DmfK.lib"
-          if (-not (Test-Path $lib)) { throw "DmfK.lib not produced at $lib" }
+          if (-not (Test-Path $lib)) {
+            Write-Host "::error::DmfK.lib not produced at $lib"
+            exit 1
+          }
           Write-Host "built: $lib"
+          exit 0
         shell: pwsh
 
       - name: Build driver
@@ -136,11 +178,21 @@ jobs:
         env:
           DmfRootPath: ${{ runner.temp }}\DMF
         run: |
-          msbuild PuppetPadBus.sln `
+          $ErrorActionPreference = 'Continue'
+          $log = & msbuild PuppetPadBus.sln `
             /p:Configuration=Release `
             /p:Platform=${{ matrix.platform }} `
             /p:WindowsTargetPlatformVersion=$env:WDK_VERSION `
-            /m /v:minimal /nologo
+            /m /v:minimal /nologo 2>&1 | ForEach-Object { "$_" }
+          $code = $LASTEXITCODE
+          $log | ForEach-Object { Write-Host $_ }
+          if ($code -ne 0) {
+            $log | Where-Object { $_ -match 'error|MSB\d{4}' } | Select-Object -Last 10 |
+              ForEach-Object { Write-Host "::error::driver: $_" }
+            Write-Host "::error::msbuild PuppetPadBus.sln exited $code"
+            exit 1
+          }
+          exit 0
         shell: pwsh
 
       - name: Verify driver was produced
