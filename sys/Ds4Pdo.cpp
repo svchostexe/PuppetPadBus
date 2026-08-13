@@ -177,6 +177,11 @@ NTSTATUS ViGEm::Bus::Targets::EmulationTargetDS4::PdoInitContext()
 {
 	NTSTATUS status;
 
+	//
+	// Declared out here so the cleanup below runs for early failures too.
+	//
+	WDFKEY keyParams = nullptr, keyTargets = nullptr, keyDS = nullptr, keySerial = nullptr;
+
 	// Initialize periodic timer
 	WDF_TIMER_CONFIG timerConfig;
 	WDF_TIMER_CONFIG_INIT_PERIODIC(
@@ -214,7 +219,6 @@ NTSTATUS ViGEm::Bus::Targets::EmulationTargetDS4::PdoInitContext()
 		// TODO: tidy up this region
 		// 
 
-		WDFKEY keyParams, keyTargets, keyDS, keySerial;
 		UNICODE_STRING keyName, valueName;
 
 		if (!NT_SUCCESS(status = WdfDriverOpenParametersRegistryKey(
@@ -353,12 +357,22 @@ NTSTATUS ViGEm::Bus::Targets::EmulationTargetDS4::PdoInitContext()
 			break;
 		}
 
-		WdfRegistryClose(keySerial);
-		WdfRegistryClose(keyDS);
-		WdfRegistryClose(keyTargets);
-		WdfRegistryClose(keyParams);
-
 	} while (FALSE);
+
+	//
+	// Close whatever was opened, on the success path and on every early
+	// break alike. These closes used to sit at the tail of the do-block, so
+	// any failure between opening a key and reaching them leaked every key
+	// opened so far for the lifetime of the driver.
+	//
+	if (keySerial != nullptr)
+		WdfRegistryClose(keySerial);
+	if (keyDS != nullptr)
+		WdfRegistryClose(keyDS);
+	if (keyTargets != nullptr)
+		WdfRegistryClose(keyTargets);
+	if (keyParams != nullptr)
+		WdfRegistryClose(keyParams);
 
 	return status;
 }
