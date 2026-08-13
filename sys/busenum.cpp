@@ -272,6 +272,9 @@ EXTERN_C NTSTATUS Bus_UnPlugDevice(
 	WDFFILEOBJECT                       fileObject;
 	PFDO_FILE_DATA                      pFileData = NULL;
 	size_t                              length = 0;
+	NTSTATUS                            unplugStatus = STATUS_SUCCESS;
+	ULONG                               unpluggedCount = 0;
+	BOOLEAN                             serialMatched = FALSE;
 
 	PAGED_CODE();
 
@@ -373,6 +376,8 @@ EXTERN_C NTSTATUS Bus_UnPlugDevice(
 			continue;
 		}
 
+		serialMatched = TRUE;
+
 		TraceVerbose(
 			TRACE_BUSENUM,
 			"description.SessionId = %d, pFileData->SessionId = %d",
@@ -390,6 +395,16 @@ EXTERN_C NTSTATUS Bus_UnPlugDevice(
 					TRACE_BUSENUM,
 					"WdfChildListUpdateChildDescriptionAsMissing failed with status %!STATUS!",
 					status);
+
+				//
+				// Remember the failure; keep going so an unplug-all request
+				// still removes everything else it can.
+				//
+				unplugStatus = status;
+			}
+			else
+			{
+				unpluggedCount++;
 			}
 		}
 	}
@@ -400,7 +415,21 @@ EXTERN_C NTSTATUS Bus_UnPlugDevice(
 		TRACE_BUSENUM,
 		"Finished child list traversal");
 
-	TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_BUSENUM, "%!FUNC! Exit with status %!STATUS!", STATUS_SUCCESS);
+	//
+	// Report what actually happened. This used to return STATUS_SUCCESS
+	// unconditionally, so a caller naming a serial that was never plugged in
+	// -- or one owned by a different session, or whose removal failed
+	// outright -- was told the unplug had succeeded.
+	//
+	// An unplug-all request stays successful when it finds nothing: removing
+	// every target of none is not an error, and callers use it to tidy up.
+	//
+	if (NT_SUCCESS(unplugStatus) && unpluggedCount == 0 && !unplugAll)
+	{
+		unplugStatus = serialMatched ? STATUS_ACCESS_DENIED : STATUS_NO_SUCH_DEVICE;
+	}
 
-	return STATUS_SUCCESS;
+	TraceEvents(TRACE_LEVEL_INFORMATION, TRACE_BUSENUM, "%!FUNC! Exit with status %!STATUS!", unplugStatus);
+
+	return unplugStatus;
 }
