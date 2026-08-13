@@ -62,9 +62,16 @@ jobs:
           if (-not $kits) { throw "no WDK with kernel-mode libraries found under $root\Lib" }
           $v = $kits[0].Name
           Write-Host "Kits with kernel-mode libs: $($kits.Name -join ', ')"
-          Write-Host "Using: $v"
           Get-ChildItem "$root\Lib\$v\km" -Directory | ForEach-Object { "  km lib arch: $($_.Name)" }
+          if ([string]::IsNullOrWhiteSpace($v)) {
+            Write-Host "::error::WDK version detection produced an empty value"
+            exit 1
+          }
+          # Surfaced as an annotation because annotations are readable from the
+          # API without a token, unlike job logs.
+          Write-Host "::notice::Detected WDK version $v"
           "WDK_VERSION=$v" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          exit 0
         shell: pwsh
 
       - name: Clone and patch DMF
@@ -148,12 +155,23 @@ jobs:
         # surfaces only as "Process completed with exit code 1".
         run: |
           $ErrorActionPreference = 'Continue'
-          $log = & msbuild "$env:RUNNER_TEMP\DMF\Dmf.sln" `
-            /t:DmfK `
-            /p:Configuration=Release `
-            /p:Platform=${{ steps.plat.outputs.dmf_platform }} `
-            /p:WindowsTargetPlatformVersion=$env:WDK_VERSION `
-            /m /v:minimal /nologo 2>&1 | ForEach-Object { "$_" }
+          # Never pass this property empty. It is a GLOBAL msbuild property, so an
+          # empty value cannot be corrected by the WDK's own fallback in
+          # WindowsDriver.Default.props, which then treats the target platform as
+          # unknown, drops to the legacy branch and yields TargetPlatformVersion
+          # "winv6.3" -- Windows 8.1. That surfaces far away as MSB4086, "a numeric
+          # comparison was attempted on ... winv6.3", from the common C++ targets.
+          $args = @("$env:RUNNER_TEMP\DMF\Dmf.sln", "/t:DmfK",
+                    "/p:Configuration=Release",
+                    "/p:Platform=${{ steps.plat.outputs.dmf_platform }}",
+                    "/m", "/v:minimal", "/nologo")
+          if (-not [string]::IsNullOrWhiteSpace($env:WDK_VERSION)) {
+            $args += "/p:WindowsTargetPlatformVersion=$env:WDK_VERSION"
+            Write-Host "::notice::DMF build using WindowsTargetPlatformVersion=$env:WDK_VERSION"
+          } else {
+            Write-Host "::notice::WDK_VERSION empty; letting the WDK pick the platform version itself"
+          }
+          $log = & msbuild @args 2>&1 | ForEach-Object { "$_" }
           $code = $LASTEXITCODE
           $log | ForEach-Object { Write-Host $_ }
           if ($code -ne 0) {
@@ -179,11 +197,16 @@ jobs:
           DmfRootPath: ${{ runner.temp }}\DMF
         run: |
           $ErrorActionPreference = 'Continue'
-          $log = & msbuild PuppetPadBus.sln `
-            /p:Configuration=Release `
-            /p:Platform=${{ matrix.platform }} `
-            /p:WindowsTargetPlatformVersion=$env:WDK_VERSION `
-            /m /v:minimal /nologo 2>&1 | ForEach-Object { "$_" }
+          # Same rule as the DMF step: an empty global WindowsTargetPlatformVersion
+          # is worse than not passing it at all.
+          $args = @("PuppetPadBus.sln",
+                    "/p:Configuration=Release",
+                    "/p:Platform=${{ matrix.platform }}",
+                    "/m", "/v:minimal", "/nologo")
+          if (-not [string]::IsNullOrWhiteSpace($env:WDK_VERSION)) {
+            $args += "/p:WindowsTargetPlatformVersion=$env:WDK_VERSION"
+          }
+          $log = & msbuild @args 2>&1 | ForEach-Object { "$_" }
           $code = $LASTEXITCODE
           $log | ForEach-Object { Write-Host $_ }
           if ($code -ne 0) {
