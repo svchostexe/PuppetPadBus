@@ -1259,9 +1259,15 @@ VOID ViGEm::Bus::Targets::EmulationTargetDS4::GenerateRandomMacAddress(PMAC_ADDR
 
 	ULONG seed = KeQueryPerformanceCounter(NULL).LowPart;
 
-	Address->Nic0 = RtlRandomEx(&seed) % 0xFF;
-	Address->Nic1 = RtlRandomEx(&seed) % 0xFF;
-	Address->Nic2 = RtlRandomEx(&seed) % 0xFF;
+	//
+	// Mask rather than take a modulus. "% 0xFF" yields 0..254, so 0xFF was
+	// unreachable in every NIC byte and the low values were slightly
+	// over-represented. These bytes only have to differ between targets, so
+	// taking the low byte outright is both correct and sufficient.
+	//
+	Address->Nic0 = static_cast<UCHAR>(RtlRandomEx(&seed) & 0xFF);
+	Address->Nic1 = static_cast<UCHAR>(RtlRandomEx(&seed) & 0xFF);
+	Address->Nic2 = static_cast<UCHAR>(RtlRandomEx(&seed) & 0xFF);
 }
 
 void ViGEm::Bus::Targets::EmulationTargetDS4::ProcessPendingNotification(WDFQUEUE Queue)
