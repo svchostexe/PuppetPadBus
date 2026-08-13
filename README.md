@@ -18,6 +18,8 @@ This is an independent, community-maintained continuation of the archived upstre
 
 **Security note if you have an existing ViGEmBus installation:** the domain its built-in auto-updater checked (`vigem.org`) was transferred away from the original maintainer in December 2023. Update prompts from it can no longer be assumed to come from the original developer. Disable the auto-updater (or uninstall it) and source releases from a repository you trust instead.
 
+Builds from this fork do not carry that updater. The bundled update component, the daily `ViGEmBus_Updater` scheduled task it installed, and the `updates.vigem.org` endpoint it polled have all been removed from the installer project, so nothing in a fork build contacts the network on its own. Updating is a deliberate, manual step.
+
 ---
 
 ## About
