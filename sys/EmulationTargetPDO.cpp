@@ -180,6 +180,16 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::PdoCreateDevice(WDFDEVICE ParentD
 			"Created PDO 0x%p",
 			this->_PdoDevice);
 
+		//
+		// Bind this object and device context together right away. The
+		// cleanup callback registered by WdfDeviceCreate above dereferences
+		// ctx->Target, and every failure path below deletes the PDO -- which
+		// runs that callback synchronously. Binding any later would leave a
+		// window in which cleanup faults on a NULL Target.
+		//
+		pPdoContext = EmulationTargetPdoGetContext(this->_PdoDevice);
+		pPdoContext->Target = this;
+
 #pragma endregion
 
 #pragma region Expose USB Interface
@@ -201,12 +211,6 @@ NTSTATUS ViGEm::Bus::Core::EmulationTargetPDO::PdoCreateDevice(WDFDEVICE ParentD
 #pragma endregion
 
 #pragma region Set PDO contexts
-
-		//
-		// Bind this object and device context together
-		// 
-		pPdoContext = EmulationTargetPdoGetContext(this->_PdoDevice);
-		pPdoContext->Target = this;
 
 		status = this->PdoInitContext();
 
@@ -397,6 +401,17 @@ VOID ViGEm::Bus::Core::EmulationTargetPDO::EvtDeviceContextCleanup(
 	TraceVerbose(TRACE_BUSPDO, "%!FUNC! Entry");
 
 	const auto ctx = EmulationTargetPdoGetContext(Device);
+
+	//
+	// Defence in depth: WDF zero-initializes the context, so a NULL Target
+	// means the PDO is being torn down before PdoCreateDevice bound it.
+	// Nothing below this point is safe to touch in that state.
+	//
+	if (ctx->Target == nullptr)
+	{
+		TraceVerbose(TRACE_BUSPDO, "%!FUNC! Exit (no target bound)");
+		return;
+	}
 
 	//
 	// This queues parent is the FDO so explicitly free memory
