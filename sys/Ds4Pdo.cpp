@@ -1234,23 +1234,20 @@ NTSTATUS ViGEm::Bus::Targets::EmulationTargetDS4::SubmitReportImpl(PVOID NewRepo
 
 VOID ViGEm::Bus::Targets::EmulationTargetDS4::ReverseByteArray(PUCHAR Array, INT Length)
 {
-	const auto s = static_cast<PUCHAR>(ExAllocatePoolZero(
-		NonPagedPoolNx,
-		sizeof(UCHAR) * Length,
-		'U4SD'
-	));
-	INT c, d;
-
-	if (s == nullptr)
-		return;
-
-	for (c = Length - 1, d = 0; c >= 0; c--, d++)
-		*(s + d) = *(Array + c);
-
-	for (c = 0; c < Length; c++)
-		*(Array + c) = *(s + c);
-
-	ExFreePoolWithTag(s, 'U4SD');
+	//
+	// Swap in place. This previously allocated a scratch buffer to reverse
+	// what is a six-byte MAC address, on a path taken for every HID
+	// GET_REPORT of the MAC feature report -- and when that allocation
+	// failed it returned having done nothing, handing the caller an address
+	// in the wrong byte order rather than reporting the failure. There is no
+	// longer an allocation to fail.
+	//
+	for (INT head = 0, tail = Length - 1; head < tail; head++, tail--)
+	{
+		const UCHAR swap = Array[head];
+		Array[head] = Array[tail];
+		Array[tail] = swap;
+	}
 }
 
 VOID ViGEm::Bus::Targets::EmulationTargetDS4::GenerateRandomMacAddress(PMAC_ADDRESS Address)
