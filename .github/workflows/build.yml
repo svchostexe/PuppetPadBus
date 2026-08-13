@@ -1,17 +1,21 @@
 # Kernel-mode driver build for x64, x86 and ARM64.
 #
-# STATUS: this workflow has never run. It was written from the known-good local
-# build recipe, but GitHub's Windows runners do not ship the WDK, and the exact
-# package that provides it is the one step that could not be verified offline.
-# Expect to adjust the "Install WDK" step on the first run. The "Report SDK/WDK
-# versions" step exists precisely to tell you what the runner actually has, so a
-# first failure is informative rather than mysterious.
+# Two things here are deliberate and worth not "tidying up":
 #
-# The version pin is the thing most likely to bite. Both this driver and the
-# patched DMF projects hard-code WindowsTargetPlatformVersion 10.0.19041.0. A
-# runner carrying only a newer WDK will fail to find that toolset, so the builds
-# below pass WindowsTargetPlatformVersion explicitly and WDK_VERSION drives it.
-# Set WDK_VERSION to whatever the report step shows.
+# 1. The DMF patch is applied with --reject and its exit code is ignored. Four
+#    hunks always reject, all of them in DMF's user-mode projects (DmfU*). Every
+#    kernel-mode project applies cleanly, and those are the only ones this driver
+#    needs. Upstream's AppVeyor script got away with this silently because cmd
+#    did not propagate the exit code; pwsh does, which is why it must be handled
+#    explicitly rather than left to chance. The step still asserts that DmfK
+#    actually got patched, so a genuinely broken patch fails loudly.
+#
+# 2. Only the DmfK target is built, not all of Dmf.sln. The driver links
+#    DmfK.lib and nothing else from DMF, and the user-mode projects are the ones
+#    the patch cannot fix — building them would fail for no useful reason.
+#
+# The WDK version is detected at runtime rather than pinned, so this does not
+# break when the runner image changes what it ships.
 
 name: Build
 
@@ -24,7 +28,6 @@ on:
 
 env:
   DMF_REF: 31558c2
-  WDK_VERSION: "10.0.19041.0"
 
 jobs:
   build:
@@ -48,24 +51,37 @@ jobs:
           choco install windowsdriverkit11 -y --no-progress
         shell: pwsh
 
-      - name: Report SDK/WDK versions
-        # Diagnostic, not a gate. Read this output before debugging anything else.
+      - name: Detect WDK version
+        # Pick the newest installed kit that actually has kernel-mode libraries;
+        # an SDK without them cannot build a driver. Exported for later steps.
         run: |
           $root = "C:\Program Files (x86)\Windows Kits\10"
-          Write-Host "Installed SDK/WDK versions under $root\bin:"
-          Get-ChildItem "$root\bin" -Directory -ErrorAction SilentlyContinue |
-            Where-Object Name -match '^10\.' | ForEach-Object { "  $($_.Name)" }
-          Write-Host "Kernel-mode libs present for:"
-          Get-ChildItem "$root\Lib\$env:WDK_VERSION\km" -Directory -ErrorAction SilentlyContinue |
-            ForEach-Object { "  $($_.Name)" }
+          $kits = Get-ChildItem "$root\Lib" -Directory -ErrorAction SilentlyContinue |
+                    Where-Object { Test-Path "$($_.FullName)\km\x64" } |
+                    Sort-Object Name -Descending
+          if (-not $kits) { throw "no WDK with kernel-mode libraries found under $root\Lib" }
+          $v = $kits[0].Name
+          Write-Host "Kits with kernel-mode libs: $($kits.Name -join ', ')"
+          Write-Host "Using: $v"
+          Get-ChildItem "$root\Lib\$v\km" -Directory | ForEach-Object { "  km lib arch: $($_.Name)" }
+          "WDK_VERSION=$v" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
         shell: pwsh
 
       - name: Clone and patch DMF
+        # git apply --reject exits non-zero when any hunk rejects, and four
+        # always do (user-mode DmfU* projects). Ignore that, then verify the
+        # kernel-mode project we actually build really was patched.
         run: |
           git clone --quiet https://github.com/microsoft/DMF.git "$env:RUNNER_TEMP\DMF"
           cd "$env:RUNNER_TEMP\DMF"
           git checkout --quiet $env:DMF_REF
           git apply --reject "$env:GITHUB_WORKSPACE\patches\dmf.diff"
+          Write-Host "git apply exit code $LASTEXITCODE (non-zero is expected: DmfU* hunks reject)"
+          $dmfk = Get-Content "Dmf\Solution\DmfK\DmfK.vcxproj" -Raw
+          if ($dmfk -match 'LatestTargetPlatformVersion') {
+            throw "DmfK.vcxproj still references LatestTargetPlatformVersion - the patch did not apply where it matters"
+          }
+          Write-Host "DmfK.vcxproj patched as expected"
         shell: pwsh
 
       - name: Map platform name for DMF
@@ -76,15 +92,21 @@ jobs:
           "dmf_platform=$dmf" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
-      - name: Build DMF
-        # Release only. DMF produces no Debug output, so a Debug driver build
-        # would fail at link with a missing DmfK.lib.
+      - name: Build DMF (DmfK only)
+        # Only DmfK: the driver links DmfK.lib and nothing else from DMF, and the
+        # user-mode projects are exactly the ones the patch cannot fix. Release
+        # only -- DMF produces no Debug output, so a Debug driver build would fail
+        # at link with a missing DmfK.lib.
         run: |
           msbuild "$env:RUNNER_TEMP\DMF\Dmf.sln" `
+            /t:DmfK `
             /p:Configuration=Release `
             /p:Platform=${{ steps.plat.outputs.dmf_platform }} `
             /p:WindowsTargetPlatformVersion=$env:WDK_VERSION `
             /m /v:minimal /nologo
+          $lib = "$env:RUNNER_TEMP\DMF\Release\${{ steps.plat.outputs.dmf_platform }}\lib\DmfK\DmfK.lib"
+          if (-not (Test-Path $lib)) { throw "DmfK.lib not produced at $lib" }
+          Write-Host "built: $lib"
         shell: pwsh
 
       - name: Build driver
