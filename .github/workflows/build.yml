@@ -35,7 +35,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [x64, x86, ARM64]
+        # x86 is deliberately absent. Current WDKs refuse 32-bit kernel mode
+        # outright -- 10.0.26100 fails in WindowsDriver.common.targets with
+        # "'Win32' is not a valid architecture for Kernel mode drivers or UMDF
+        # drivers" -- so there is no runner image that can verify it. 32-bit
+        # Windows is not a supported target for this driver; see the README.
+        platform: [x64, ARM64]
 
     steps:
       - name: Checkout
@@ -167,6 +172,30 @@ jobs:
         # surfaces only as "Process completed with exit code 1".
         run: |
           $ErrorActionPreference = 'Continue'
+
+          # DMF is pinned at an old commit (DMF_REF) while the runner ships a
+          # much newer WDK than this project targets locally, and the two
+          # disagree about who owns the HUTRR74 eye/head tracker HID usages.
+          # Dmf_VirtualEyeGaze.c defines them itself; newer SDKs also define
+          # them in shared\hidusage.h. That collision is C4005, macro
+          # redefinition, and DMF compiles at /W4 with warnings as errors, so it
+          # stops the build.
+          #
+          # It cannot be switched off with /p:TreatWarningAsError=false. The WDK
+          # sets that in an ItemDefinitionGroup in WindowsDriver.Shared.Props --
+          # ClCompile *item metadata*, not a property -- and a global property
+          # does not override item metadata. cl.exe does honour the CL
+          # environment variable, prepending it to every compilation, so that is
+          # the lever that actually reaches this.
+          #
+          # Deliberately scoped to this step alone: DMF is a third-party build
+          # dependency, and the driver's own build below keeps warnings as
+          # errors. Suppressing it is safe because the redefined usages are
+          # constants the driver never references, and pinning DMF is worth more
+          # than silencing this at the source -- CI and local builds must agree
+          # on which DMF is being built.
+          $env:CL = '/wd4005'
+
           # Never pass this property empty. It is a GLOBAL msbuild property, so an
           # empty value cannot be corrected by the WDK's own fallback in
           # WindowsDriver.Default.props, which then treats the target platform as
@@ -187,7 +216,11 @@ jobs:
           $code = $LASTEXITCODE
           $log | ForEach-Object { Write-Host $_ }
           if ($code -ne 0) {
-            $log | Where-Object { $_ -match 'error|MSB\d{4}' } | Select-Object -Last 10 |
+            # Warnings are captured as well as errors. C2220 says only "the
+            # following warning is treated as an error" and names no warning
+            # number -- the number is on the neighbouring warning line, so
+            # matching errors alone throws away the one detail worth having.
+            $log | Where-Object { $_ -match 'error|warning|MSB\d{4}' } | Select-Object -Last 20 |
               ForEach-Object { Write-Host "::error::DMF: $_" }
             Write-Host "::error::msbuild /t:DmfK exited $code"
             exit 1
@@ -222,7 +255,8 @@ jobs:
           $code = $LASTEXITCODE
           $log | ForEach-Object { Write-Host $_ }
           if ($code -ne 0) {
-            $log | Where-Object { $_ -match 'error|MSB\d{4}' } | Select-Object -Last 10 |
+            # Warnings included for the same reason as the DMF step above.
+            $log | Where-Object { $_ -match 'error|warning|MSB\d{4}' } | Select-Object -Last 20 |
               ForEach-Object { Write-Host "::error::driver: $_" }
             Write-Host "::error::msbuild PuppetPadBus.sln exited $code"
             exit 1
