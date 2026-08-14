@@ -50,6 +50,14 @@ jobs:
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
+        with:
+          # 64-bit msbuild, not the default 32-bit one. The WDK's InfVerif task
+          # loads its native helper from a directory named after the *host*
+          # process architecture, so 32-bit msbuild asks for x86\InfVerif.dll --
+          # which WDK 10.0.26100 does not ship, having dropped x86 tooling. The
+          # build then dies well after compiling, in WindowsDriver.common.targets:
+          #   INF verification exception: Unable to load DLL 'x86\InfVerif.dll'
+          msbuild-architecture: x64
 
       - name: Install WDK
         run: |
@@ -188,12 +196,14 @@ jobs:
           # environment variable, prepending it to every compilation, so that is
           # the lever that actually reaches this.
           #
-          # Deliberately scoped to this step alone: DMF is a third-party build
-          # dependency, and the driver's own build below keeps warnings as
-          # errors. Suppressing it is safe because the redefined usages are
+          # Suppressing it is safe here because the redefined usages are
           # constants the driver never references, and pinning DMF is worth more
           # than silencing this at the source -- CI and local builds must agree
           # on which DMF is being built.
+          #
+          # Only C4005 is suppressed, and only for this msbuild invocation. Every
+          # other warning is still an error. (The driver step below suppresses
+          # the same warning for a different collision of its own; see there.)
           $env:CL = '/wd4005'
 
           # Never pass this property empty. It is a GLOBAL msbuild property, so an
@@ -242,6 +252,24 @@ jobs:
           DmfRootPath: ${{ runner.temp }}\DMF
         run: |
           $ErrorActionPreference = 'Continue'
+
+          # POOL_ZERO_DOWN_LEVEL_SUPPORT is opt-in on the WDK this project
+          # targets: in 10.0.19041 wdm.h only ever tests it (#if defined), never
+          # defines it, so sys/PuppetPadBus.vcxproj supplies it in
+          # PreprocessorDefinitions to get the down-level pool-zeroing paths.
+          # WDK 10.0.26100's km\lkmdtel.h defines it itself, and the two
+          # definitions are not token-identical -- /D FOO makes it 1 while the
+          # header defines it empty -- so it is C4005, macro redefinition.
+          #
+          # This is an artifact of building against a WDK newer than the one the
+          # project targets, not a defect in the driver: the project cannot
+          # simply drop the define without breaking the WDK it officially
+          # supports. Suppressed only here, in CI, so local builds against 19041
+          # are unaffected. If CI ever moves to a WDK that defines this
+          # unconditionally, making the define conditional on
+          # $(WindowsTargetPlatformVersion) in the vcxproj is the better fix.
+          $env:CL = '/wd4005'
+
           # Same rule as the DMF step: an empty global WindowsTargetPlatformVersion
           # is worse than not passing it at all.
           $args = @("PuppetPadBus.sln",
