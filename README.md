@@ -89,8 +89,8 @@ If you already cloned without it: `git submodule update --init`.
 
 ### Prerequisites
 
-- [Visual Studio 2019](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-1-install-visual-studio), including the build tools for every architecture you intend to target — ARM64 needs `VC.Tools.ARM64` and `VC.Runtimes.ARM64.Spectre`, which are not installed by default
-- [WDK for Windows 10, version 2004](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-2-install-the-wdk) (`10.0.19041.0`)
+- **Visual Studio**, including the build tools for every architecture you intend to target — ARM64 needs `VC.Tools.ARM64` and `VC.Runtimes.ARM64.Spectre`, which are not installed by default. [2019](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-1-install-visual-studio) and 2022 both work.
+- **A WDK**, either [Windows 10 version 2004](https://docs.microsoft.com/en-us/windows-hardware/drivers/other-wdk-downloads#step-2-install-the-wdk) (`10.0.19041.0`) or a current one (`10.0.26100.0` is what CI uses). See [Toolchain versions](#toolchain-versions) — a newer WDK needs one extra build flag.
 - [Driver Module Framework (DMF)](https://github.com/microsoft/DMF), cloned separately:
 
 ```
@@ -114,6 +114,28 @@ msbuild PuppetPadBus.sln /p:Configuration=Release /p:Platform=x64
 `Platform` accepts `x64` or `ARM64`. `DmfRootPath` must point at the **root of the DMF clone**, not its parent — the default in `sys/Dmf.props` assumes a different layout and will fail with a misleading "cannot open include file `DmfModules.Library.h`".
 
 Output lands in `bin\<arch>\`, alongside the generated catalog.
+
+### Toolchain versions
+
+Two combinations are known to build this driver:
+
+| Toolchain | Status |
+| --- | --- |
+| VS 2019 + WDK `10.0.19041.0` | What development happens on. Also the only combination that can still build the unsupported x86 configuration. |
+| VS 2022 + WDK `10.0.26100.0` | What [CI](.github/workflows/build.yml) builds on every push, x64 and ARM64. |
+
+**Building with a current WDK needs `CL=/wd4005`.** Two macros the project and DMF have to define for the older WDK are defined by the newer WDK's own headers as well, and the definitions are not token-identical, so they surface as C4005 macro redefinitions — which are errors, because driver projects compile at `/W4` with warnings as errors:
+
+- `POOL_ZERO_DOWN_LEVEL_SUPPORT`, which `10.0.19041`'s `wdm.h` only ever tests and never defines, so `sys/PuppetPadBus.vcxproj` supplies it — while `10.0.26100`'s `km\lkmdtel.h` defines it itself
+- the HUTRR74 eye/head tracker HID usages, which DMF defines in `Dmf_VirtualEyeGaze.c` and current SDKs also define in `shared\hidusage.h`
+
+Note that `/p:TreatWarningAsError=false` does **not** turn this off. The WDK sets that in an `ItemDefinitionGroup` in `WindowsDriver.Shared.Props`, as `ClCompile` item metadata rather than a property, and a global MSBuild property does not override item metadata. `cl.exe`'s `CL` environment variable does reach it:
+
+```
+set CL=/wd4005
+```
+
+Also use **64-bit MSBuild** with a current WDK. The WDK's INF verification step loads its native helper from a directory named after the host process architecture, and recent WDKs no longer ship x86 tooling, so 32-bit MSBuild fails late in the build with `Unable to load DLL 'x86\InfVerif.dll'`.
 
 ## Contributing
 
