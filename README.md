@@ -47,7 +47,9 @@ Both drivers expose the same device interface GUID, and the bus refuses to start
 
 ## Supported systems
 
-Windows 10 and 11, on x86, x64 and ARM64. Windows Server is untested and unsupported. Anything older than Windows 10 is not supported.
+Windows 10 and 11, on x64 and ARM64. Windows Server is untested and unsupported. Anything older than Windows 10 is not supported.
+
+**32-bit Windows is not supported.** Upstream built an x86 driver, but current WDKs refuse to target 32-bit kernel mode at all — 10.0.26100 rejects it outright — so there is no way to build or verify one with a supported toolchain. The x86 solution configuration is still present and may work against an older WDK such as 10.0.19041, but it is not built, not tested and not covered by CI.
 
 ## Installation
 
@@ -98,7 +100,7 @@ git apply --reject <path to this repo>\patches\dmf.diff
 msbuild Dmf.sln /p:Configuration=Release /p:Platform=x64
 ```
 
-DMF must be built once per architecture before the driver will link against it. Note that DMF calls the 32-bit platform `Win32` where this solution calls it `x86`, and that only `Release` is supported — DMF produces no Debug output, so a Debug build of the driver fails at link.
+DMF must be built once per architecture before the driver will link against it. Only `Release` is supported — DMF produces no Debug output, so a Debug build of the driver fails at link.
 
 ### Building
 
@@ -109,7 +111,7 @@ set DmfRootPath=<path to your DMF clone>
 msbuild PuppetPadBus.sln /p:Configuration=Release /p:Platform=x64
 ```
 
-`Platform` accepts `x64`, `x86` or `ARM64`. `DmfRootPath` must point at the **root of the DMF clone**, not its parent — the default in `sys/Dmf.props` assumes a different layout and will fail with a misleading "cannot open include file `DmfModules.Library.h`".
+`Platform` accepts `x64` or `ARM64`. `DmfRootPath` must point at the **root of the DMF clone**, not its parent — the default in `sys/Dmf.props` assumes a different layout and will fail with a misleading "cannot open include file `DmfModules.Library.h`".
 
 Output lands in `bin\<arch>\`, alongside the generated catalog.
 
