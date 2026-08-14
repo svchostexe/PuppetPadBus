@@ -4,6 +4,12 @@ This project publishes **source, not signed binaries**. Installing what you buil
 means taking your machine out of its default security posture. Read this section
 before the commands.
 
+This is also a personal, as-is fork whose changes were written with heavy AI
+assistance and have not had expert kernel-mode review — see the project status
+section in the [README](../README.md). You are about to disable Secure Boot and
+load that into your kernel. Both halves of that sentence deserve a moment's
+thought, ideally on a machine you would not mind reinstalling.
+
 ## What you are agreeing to
 
 Windows will not load a kernel-mode driver that lacks an acceptable signature.
