@@ -54,12 +54,24 @@ jobs:
       - name: Detect WDK version
         # Pick the newest installed kit that actually has kernel-mode libraries;
         # an SDK without them cannot build a driver. Exported for later steps.
+        #
+        # Two filters matter here, and dropping either one reintroduces a bug:
+        #
+        #   - Only 10.0.x.y directories are candidates. Windows Kits\10\Lib also
+        #     holds the legacy kits win7, win8 and winv6.3, and all three carry
+        #     km\x64 -- so "has kernel-mode libs" alone does not identify a
+        #     Windows 10 WDK.
+        #   - The sort is by [version], not by name. A descending *string* sort
+        #     ranks "winv6.3" above "10.0.19041.0" (w > 1), which is how this
+        #     step came to export winv6.3, the Windows 8.1 moniker, as the WDK
+        #     version and force it onto msbuild as a global property.
         run: |
           $root = "C:\Program Files (x86)\Windows Kits\10"
           $kits = Get-ChildItem "$root\Lib" -Directory -ErrorAction SilentlyContinue |
-                    Where-Object { Test-Path "$($_.FullName)\km\x64" } |
-                    Sort-Object Name -Descending
-          if (-not $kits) { throw "no WDK with kernel-mode libraries found under $root\Lib" }
+                    Where-Object { $_.Name -match '^10\.\d+\.\d+\.\d+$' -and
+                                   (Test-Path "$($_.FullName)\km\x64") } |
+                    Sort-Object { [version]$_.Name } -Descending
+          if (-not $kits) { throw "no Windows 10 WDK with kernel-mode libraries found under $root\Lib" }
           $v = $kits[0].Name
           Write-Host "Kits with kernel-mode libs: $($kits.Name -join ', ')"
           Get-ChildItem "$root\Lib\$v\km" -Directory | ForEach-Object { "  km lib arch: $($_.Name)" }
