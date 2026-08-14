@@ -4,6 +4,8 @@
 
 This project is a Windows **kernel-mode** driver. Defects here can bugcheck a machine or, in the worst case, be reachable from unprivileged user mode through the driver's IOCTL interface. Reports are taken seriously and handled privately.
 
+**Know what you are auditing.** This is a personal, as-is fork maintained by one person who is not a Windows kernel developer, and its changes were written with heavy AI assistance. They have not had expert review. That makes independent scrutiny more valuable here than it would be on a project with a security team behind it — but it also means you should assume defects are present rather than assume they have been caught. See the project status section in the [README](README.md).
+
 ## Reporting a vulnerability
 
 **Do not open a public issue for security problems.**
@@ -17,7 +19,7 @@ Please include:
 - what happens when it goes wrong (bugcheck, pool corruption, information disclosure, hang)
 - a reproducer if you have one, or the reasoning that led you to it if you do not
 
-You should get an acknowledgement within a week. If a report is confirmed, the fix and an advisory will be published together.
+Reports are read and taken seriously, but this is a spare-time project with no on-call rotation behind it — there is no guaranteed response time, and a reply may take a while. If a report is confirmed, the fix and an advisory will be published together. If a report needs kernel expertise beyond mine, I will say so plainly rather than sit on it.
 
 ## Scope notes
 

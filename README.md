@@ -2,13 +2,25 @@
 
 Windows kernel-mode driver emulating well-known USB game controllers.
 
-**A community-maintained fork of [ViGEmBus](https://github.com/nefarius/ViGEmBus), which was retired in November 2023.**
+**A personal, as-is fork of [ViGEmBus](https://github.com/nefarius/ViGEmBus), which was retired in November 2023.**
 
 ---
 
+## Project status — please read this first
+
+**This is a personal fork, published as-is, with no warranty and no support.**
+
+I maintain it because I use it. The fixes here are bugs I either hit myself or turned up by auditing the source; they are not a roadmap. There is no schedule, no release cadence, and no commitment that an issue or pull request gets a response. Read "maintained" as *occasionally, by one person, for their own machine* — not as a promise to anyone else.
+
+**It is also, candidly, vibe-coded.** The fixes were written with heavy AI assistance by someone who is not a Windows kernel developer. Every one of them carries a root-cause explanation in its commit message, and the driver builds clean on all three architectures — but that is not the same thing as expert review, and none of it has had the kind of testing a kernel-mode driver honestly deserves. It works on my hardware. That is the full extent of the validation.
+
+None of that is a reason not to use it. It *is* something you should know before loading it into your kernel.
+
+**If you know this stack better than I do and want to take the project over, please do.** Fork it and run with it, or open an issue saying so and I will point people at you. I would far rather this end up with someone who knows the WDK properly than stay where it is. The BSD-3 licence already permits it outright — you need no permission from me. The one thing to carry forward is the naming constraint in [NOTICE](./NOTICE): upstream retired over a trademark conflict, and avoiding that mark is the reason this fork is named the way it is.
+
 ## What this is
 
-`PuppetPadBus` is an independent continuation of the archived `nefarius/ViGEmBus` kernel driver. It exists because a large number of tools — input remappers, remote play and game streaming clients, accessibility software — still depend on that driver, and it stopped receiving fixes when upstream shut down.
+`PuppetPadBus` is an independent fork of the archived `nefarius/ViGEmBus` kernel driver. It exists because a large number of tools — input remappers, remote play and game streaming clients, accessibility software — still depend on that driver, and it stopped receiving fixes when upstream shut down. It is not a successor project and does not claim to be one.
 
 This fork is **not affiliated with, endorsed by, or supported by** Nefarius Software Solutions e.U., ViGEM GmbH, or any contributor to the original project. Please do not take support requests for this fork to them.
 
@@ -103,7 +115,9 @@ Output lands in `bin\<arch>\`, alongside the generated catalog.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on the [issue tracker](../../issues). Security issues go through [SECURITY.md](SECURITY.md) instead.
+Bug reports and pull requests are welcome on the [issue tracker](../../issues), with the caveat in [Project status](#project-status--please-read-this-first): this is one person's spare-time fork, so a reply may be slow or may not come at all. Nothing here is abandoned out of disinterest — there is simply no service level to promise. Security issues go through [SECURITY.md](SECURITY.md) instead.
+
+Contributions that fix a real bug and explain the root cause in the commit message are the ones most likely to get merged. Given how this codebase has been maintained, a review from someone with genuine kernel-mode experience is worth more here than another feature.
 
 Please respect that the issue tracker is not a helpdesk, and that this project has no relationship with upstream's support channels.
 
